@@ -24,7 +24,7 @@ Run TEMP on population level data.
     print message
 
 def runjob(script, lines):
-    cmd = 'perl /rhome/cjinfeng/software/bin/qsub-pbs.pl --maxjob 30 --lines %s --interval 120 --resource walltime=100:00:00,mem=5G --convert no %s' %(lines, script)
+    cmd = 'perl /rhome/cjinfeng/software/bin/qsub-pbs.pl --queue js --maxjob 5 --lines %s --interval 120 --resource walltime=100:00:00 --convert no %s' %(lines, script)
     #print cmd 
     os.system(cmd)
 
@@ -73,7 +73,7 @@ def main():
     project = os.path.abspath(args.project)
     if not os.path.exists(project):
         os.mkdir(project)
-    #ofile = open ('%s.TEMP.run.sh' %(project), 'w')
+    ofile = open ('%s.TEMP.run.sh' %(project), 'w')
     #print project
     bams  = glob.glob('%s/*.bam' %(args.input))
     count = 0
@@ -86,7 +86,8 @@ def main():
         if not os.path.exists(tempdir):
             os.mkdir(tempdir)
         tempout = os.path.abspath('%s.insertion.refined.bp.summary' %(prefix))
-        if not os.path.isfile(tempout) and not os.path.isfile('%s/%s' %(tempdir, tempout)):
+        print tempdir, os.path.split(tempout)[1]
+        if not os.path.isfile(tempout) and not os.path.isfile('%s/%s' %(tempdir, os.path.split(tempout)[1])):
             cfg      = '%s/%s.config' %(args.input, prefix)
             size     = []
             if os.path.isfile(cfg):
@@ -95,18 +96,19 @@ def main():
             #print '%s\t%s\t%s\t%s' %(bam, lib_size, lib_size, lib_sd)
             #bash $TEMP/scripts/TEMP_Insertion.sh -i $bam -s $TEMP/scripts -r $TE_Fasta -t $TE_BED -m 3 -f 400 -c 8
             tempout = os.path.abspath('%s.insertion.refined.bp.summary' %(prefix))
-            cmd.append('bash %s/scripts/TEMP_Insertion.sh -i %s -s %s/scripts -r %s -t %s -m 3 -f %s -c 1 > %s.log 2> %s.std' %(TEMP, bam, TEMP, Repeat, existingTE, lib_size, prefix, prefix))
+            cmd.append('bash %s/scripts/TEMP_Insertion_qsub.sh -i %s -s %s/scripts -r %s -t %s -m 3 -f %s -c 1 > %s.log 2> %s.std' %(TEMP, bam, TEMP, Repeat, existingTE, lib_size, prefix, prefix))
             cmd.append('python /rhome/cjinfeng/BigData/00.RD/RelocaTE_i/TEMP/TEMP2GFF.py --insertion %s' %(tempout))
             cmd.append('rm %s.bam %s.bam.bai' %(os.path.abspath(prefix), os.path.abspath(prefix)))
             cmd.append('mv %s.* %s' %(os.path.abspath(prefix), os.path.abspath(tempdir)))
             cmd.append('mv %s %s' %(os.path.abspath(tempdir), project))
             #print cmd 
             for c in cmd:
-                #print >> ofile, c
-                os.system(c)
-    #ofile.close()
-    #runjob('%s.TEMP.run.sh' %(project), 5)
- 
+                print >> ofile, c
+                #os.system(c)
+    ofile.close()
+    runjob('%s.TEMP.run.sh' %(project), 5)
+    #runjob('%s.TEMP.run.sh' %(project), 2) 
+
 if __name__ == '__main__':
     main()
 

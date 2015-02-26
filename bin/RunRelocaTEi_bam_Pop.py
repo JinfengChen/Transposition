@@ -79,11 +79,11 @@ def main():
     project = os.path.abspath(args.project)
     if not os.path.exists(project):
         os.mkdir(project)
-    ofile = open ('%s.run.sh' %(project), 'w')
+    ofile = open ('%s.RelocaTEi.run.sh' %(project), 'w')
     #print project
     bams  = glob.glob('%s/*.bam' %(args.input))
     count = 0
-    for bam in bams:
+    for bam in sorted(bams):
         count += 1
         outdir = os.path.abspath('RelocaTEi_%s' %(os.path.split(os.path.splitext(bam)[0])[1]))
         subdata= '%s/RelocaTEi_%s/repeat/fastq' %(os.path.abspath(args.existingRun), os.path.split(os.path.splitext(bam)[0])[1]) if args.existingRun else ''
@@ -92,7 +92,7 @@ def main():
             prefix   = os.path.split(os.path.splitext(bam)[0])[1]
             cfg      = '%s/%s.config' %(args.input, prefix) 
             size     = getsize(cfg)
-            relocaTE = '%s --te_fasta %s --genome_fasta %s --bam %s --outdir %s --reference_ins %s' %(RelocaTE, Repeat, Reference, bam, outdir, existingTE, size[0])
+            relocaTE = '%s --te_fasta %s --genome_fasta %s --bam %s --outdir %s --reference_ins %s --size %s' %(RelocaTE, Repeat, Reference, bam, outdir, existingTE, size[0])
             link     = 'ln -s %s/*.* %s/repeat/fastq' %(subdata, outdir)
             newshell = 'tail -n 16 %s/run_these_jobs.sh > %s/run_these_jobs.sh1\nmv %s/run_these_jobs.sh1 %s/run_these_jobs.sh' %(outdir, outdir, outdir, outdir)
             shell    = 'time (bash %s/run_these_jobs.sh > %s/run.log 2>> %s/run.log) 2>> %s/run.log' %(outdir, outdir, outdir, outdir)
@@ -116,9 +116,9 @@ def main():
             #print shell
     ofile.close()
     if args.existingRun:
-        runjob('%s.run.sh' %(project), 6)
+        runjob('%s.RelocaTEi.run.sh' %(project), 6)
     else:
-        runjob('%s.run.sh' %(project), 3)
+        runjob('%s.RelocaTEi.run.sh' %(project), 3)
  
 if __name__ == '__main__':
     main()
