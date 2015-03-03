@@ -13,7 +13,7 @@ def usage():
     message='''
 python RunTEMP_sumtable.py --input RIL275_TEMP
 
-Check if the final result file is empty or have too few insertions
+Summary mPing insertions and sequence depth for RIL275
     '''
     print message
 

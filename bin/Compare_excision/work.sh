@@ -1,0 +1,35 @@
+echo "analyze exision in RILs, codes were modified from ~/BigData/00.RD/RILs/Figures/mPing_stability/bin"
+
+
+echo "allele frequncy of mPing in RILs, count all insertions, including hom, het and somatic"
+python AlleleFrq.py --input RIL275_RelocaTEi.CombinedGFF.characterized.gff > mping.ril.frquency
+
+echo "analyze allele frequency of all insertion site in RILs"
+export R_LIBS=$R_LIBS:"/rhome/cjinfeng/software/tools/R-2.15.3/library/"
+#from this distribution, we know that these insertion with frequency from 0.1-0.5 may have abnormal frequency due to excision or other factor
+
+cat mping.ril_breakY.R | R --slave
+#singleton
+awk '$6==1' mping.ril.frquency | wc -l
+#shared in >1
+awk '$6>1' mping.ril.frquency | wc -l
+#all insertion site
+wc -l mping.ril.frequency
+
+
+echo "Analyze excision in RILs"
+python Excision.py --input RIL275_RelocaTEi.CombinedGFF.characterized.gff > log 2> log2 &
+qsub -q js runEx.sh
+
+echo "Draw allele frequency of insertions sites that have excision events in RILs. This is partial data of allele frequency of all insertion sites"
+cat mping.excision.frq.R | R --slave
+
+echo "Average number of excision events in each interval of allele frequency. This tell us that 0.1-0.4 frequency alleles are parital caused by excisions. How about other not caused by excision? Hotspot?"
+echo "Or maybe the insertion site is around the boundary of recombination bin, so we do not know if there is excision or not"
+python mping.excision.avg.py
+cat mping.excision.avg.R | R --slave
+
+echo "correlation of excision number with ping, unique mping, mping number in RILs"
+python mping.excision.ril.py --input bamcheck.log
+cat mping.excision.ril.R | R --slave
+

@@ -17,10 +17,19 @@ echo "Run RelocaTEi on 275 RILs"
 python RunInsertSize.py --input /rhome/cjinfeng/BigData/00.RD/RILs/Transpostion/input/bam --project RIL275 > log 2> log2 &
 python RunRelocaTEi_bam_Pop.py --input /rhome/cjinfeng/BigData/00.RD/RILs/Transpostion/input/bam --project RIL275_RelocaTEi > log 2> log2 &
 python RunCheckResults.py --input RIL275_RelocaTEi --tools RelocaTEi > RIL275_RelocaTEi.lowcpmping.list
+python RunRelocaTEi_sumtable.py --input RIL275_RelocaTEi
+python RunRelocaTEi_CombinedGFF.py --input RIL275_RelocaTEi
+
 
 echo "Run TEMP on 275 RILs"
 python RunTEMP_Pop.py --input /rhome/cjinfeng/BigData/00.RD/RILs/Transpostion/input/bam --project RIL275_TEMP > log 2> log2 & 
 python RunTEMP_Pop_qsub.py --input /rhome/cjinfeng/BigData/00.RD/RILs/Transpostion/input/bam --project RIL275_TEMP > log 2> log2 &
 python RunCheckResults.py --input RIL275_TEMP --tools TEMP > RIL275_TEMP.lowcpmping.list
 python RunTEMP_sumtable.py --input RIL275_TEMP
+
+
+echo "Run RelocaTE on 275 RILs"
+cut -f2,3 EG4.mping.all_reference.txt > Nipponbare.mPing.txt
+python RunRelocaTE_Pop.py --input /rhome/cjinfeng/BigData/00.RD/RILs/QTL_pipe/input/fastq/RILs_ALL_fastq --project RIL275_RelocaTE
+
 

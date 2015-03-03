@@ -11,9 +11,9 @@ import glob
 def usage():
     test="name"
     message='''
-python RunRelocaTEi_sumtable.py --input RIL275_RelocaTEi
+python RunRelocaTEi_CombinedGFF.py --input RIL275_RelocaTEi
 
-Summary mPing insertions and sequence depth for 275 RILs.
+Combine RelocaTEi results of 275 RILs into one gff, which will used to do analysis on unique mPing and excision analysis.
     '''
     print message
 
@@ -80,25 +80,24 @@ def parse_class_gff(infile):
 
 #Chr1	not.give	RelocaTE_i	2129220	2129222	.	.	.	
 #ID=repeat_Chr1_2129220_2129222;TSD=TAA;Right_junction_reads:1;Left_junction_reads:1;Right_support_reads:0;Left_support_reads:0;
-def parse_gff(infile):
-    both_end = 0
-    sing_end = 0
+def parse_gff(infile, ril_id, ofile):
+    ril_name = 'RIL%s_0' %(ril_id)
     with open (infile, 'r') as filehd:
         for line in filehd:
             line = line.rstrip()
-            if len(line) > 2:
+            if len(line) > 2 and not line.startswith(r'#'):
                 unit = re.split(r'\t', line)
+                #print '%s\t%s\t%s' %(unit[0], ril_name, unit[8])
                 anno = re.split(r';', unit[8])
-                rj   = re.sub(r'Right_junction_reads:', '', anno[2])
-                lj   = re.sub(r'Left_junction_reads:', '', anno[3])
-                rs   = re.sub(r'Right_support_reads:', '', anno[4])
-                ls   = re.sub(r'Left_support_reads:', '', anno[5])
-                if int(lj) + int(ls) > 0 and int(rj) + int(rs) > 0:
-                    both_end += 1
-                else:
-                    sing_end += 1
-    return [both_end, sing_end]
-
+                unit[1] = ril_name
+                anno.insert(1, 'Strain=%s' %(ril_name))
+                unit[8] = ';'.join(anno)
+                print >> ofile, '\t'.join(unit)
+                #rj   = re.sub(r'Right_junction_reads:', '', anno[2])
+                #lj   = re.sub(r'Left_junction_reads:', '', anno[3])
+                #rs   = re.sub(r'Right_support_reads:', '', anno[4])
+                #ls   = re.sub(r'Left_support_reads:', '', anno[5])
+                
 
 def main():
     parser = argparse.ArgumentParser()
@@ -112,31 +111,22 @@ def main():
         sys.exit(2)
    
 
-    depth  = seq_depth('RIL.bam.unique.stat')
-    size   = lib_size('RIL275.InsertSize.list') 
     #RIL275_RelocaTEi/RelocaTEi_GN1/repeat/results/ALL.all_nonref_insert.gff 
-    #RIL275_TEMP/TEMP_GN1/GN1.insertion.refined.bp.summary.gff
-    data   = defaultdict(lambda : list())
-    output = '%s.summary.table' %(args.input)
-    dirs   = glob.glob('%s/RelocaTEi_*' %(args.input))
+    data    = defaultdict(lambda : list())
+    output0 = '%s.CombinedGFF.characterized.gff' %(args.input)
+    output1 = '%s.CombinedGFF.ALL.gff' %(args.input)
+    ofile0  = open(output0, 'w')
+    ofile1  = open(output1, 'w')
+    dirs    = glob.glob('%s/RelocaTEi_*' %(args.input))
     for d in dirs:
         ril    = re.split(r'\_', os.path.split(d)[1])[1]
         ril_id = re.sub(r'\D+', '', ril)
-        #gff  = '%s/%s.insertion.refined.bp.summary.gff' %(d, ril)
         gff       = '%s/repeat/results/ALL.all_nonref_insert.gff' %(d)
         gff_class = '%s/repeat/results/ALL.all_nonref_insert.characTErized.gff' %(d)
-        confident, single_end = parse_gff(gff)
-        n_tsd, hom, het, som  = parse_class_gff(gff_class)
-        data[ril_id] = [confident, single_end, n_tsd, hom, het, som]
-
-    count = 0
-    ofile = open(output, 'w')
-    print >> ofile, 'Sample\tInsertSize\tSize_STD\tDepth\tMapped_Depth\tMapped_Rate\tNon_Ref_mPing\tConfident\tEvidence_From_One_End\tCharacterized\tHomozygous\tHeterozygous\tSomatic'
-    for strain in sorted(data.keys(), key=int):
-        non_ref = data[strain][0] + data[strain][1]
-        print >> ofile, 'RIL%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s' %(strain, size[strain][0], size[strain][1], depth[strain][0], depth[strain][1], depth[strain][2], non_ref, data[strain][0], data[strain][1], data[strain][2], data[strain][3], data[strain][4], data[strain][5])
-    ofile.close()
-
+        parse_gff(gff, ril_id, ofile1)
+        parse_gff(gff_class, ril_id, ofile0)
+    ofile0.close()
+    ofile0.close()
 
 if __name__ == '__main__':
     main()

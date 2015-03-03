@@ -13,6 +13,7 @@ def usage():
     message='''
 python RunCheckResults.py --input RIL275_RelocaTEi --tools RelocaTEi
 python RunCheckResults.py --input RIL275_TEMP --tools TEMP
+python RunCheckResults.py --input RIL275_RelocaTE --tools RelocaTE
 
 Check if the final result file is empty or have too few insertions
     '''
@@ -62,6 +63,11 @@ def main():
                 print ril, gff, n
         elif args.tools == 'RelocaTEi':
             gff = '%s/repeat/results/ALL.all_nonref_insert.gff' %(d)
+            n   = test_file(gff)
+            if int(n) <= 10:
+                print ril, gff, n
+        elif args.tools == 'RelocaTE':
+            gff = '%s/mping/results/%s.mping.all_inserts.gff' %(d, ril)
             n   = test_file(gff)
             if int(n) <= 10:
                 print ril, gff, n
