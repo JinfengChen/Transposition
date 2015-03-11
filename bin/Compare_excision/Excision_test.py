@@ -211,7 +211,7 @@ def bamcheck(bam, mping):
     start = int(match.groups(0)[1])
     end   = int(match.groups(0)[2])
     cmd = '/usr/local/bin/samtools view %s %s' %(bam, mping)
-    ofile = open('bamcheck.txt', 'a') 
+    ofile = open('mping.excision.bamcheck', 'a') 
     print >> ofile, bam, mping
     print >> ofile, cmd
     out = subprocess.check_output(cmd, shell=True)
@@ -308,12 +308,22 @@ def bamcheck(bam, mping):
     else:
         print >> ofile, 3
         return 3 # other case
-def excision(mPing_ancestor, mPing_rils, mPing_frq):
+def excision(mPing_ancestor, mPing_rils, mPing_frq, num_file):
     mPing_excision = defaultdict(lambda : defaultdict(lambda : int()))
     binmap = convert_MAP('MPR.geno.bin')
     #transition = validmap(binmap)
+    ofile_num = open(num_file, 'w')
+    print >> ofile_num, 'mPing\tPresence\tAbsence\tUnknown\tFootprint'
     for mping in sorted(mPing_ancestor.keys()):
         #print mping
+        num_present   = 0
+        num_unsure    = 0
+        num_absent    = 0
+        num_excision  = 0
+        num_footprint = 0
+        ril_absent    = []
+        ril_unsure    = []
+        ril_footprint = []
         if not mPing_frq.has_key(mping) or mPing_frq[mping] < 0.05:
             continue
             #print 'not in rils'
@@ -340,18 +350,45 @@ def excision(mPing_ancestor, mPing_rils, mPing_frq):
             #            elif flag == 4:
             #                mPing_excision[mping][ril] = 2
                     #print mPing_excision[mping]
-            if (int(genotype) == 1 and int(mPing_ancestor[mping]) != 0): # ril has genotype of nonref and mping has genotype of nonref or shared
+            #if (int(genotype) == 1 and int(mPing_ancestor[mping]) != 0): # ril has genotype of nonref and mping has genotype of nonref or shared
                 #print 'S2', mPing_rils[ril].has_key(mping)
                 #if os.path.isfile(bam):
                 #    flag = bamcheck(bam, mping)
+            #    if not mPing_rils[ril].has_key(mping):
+            #        if os.path.isfile(bam):
+            #            flag = bamcheck(bam, mping)
+            #            if flag == 0: ## bam check showed no mping insertion in this ril
+            #                mPing_excision[mping][ril] = 1
+            #            elif flag == 4:
+            #                mPing_excision[mping][ril] = 2
+            if (int(genotype) == 1 and int(mPing_ancestor[mping]) == 1): # ril has genotype of nonref and mping has genotype of nonref. Check excision for non_reference insertion
+                #print 'S2', mPing_rils[ril].has_key(mping)
                 if not mPing_rils[ril].has_key(mping):
                     if os.path.isfile(bam):
                         flag = bamcheck(bam, mping)
                         if flag == 0: ## bam check showed no mping insertion in this ril
                             mPing_excision[mping][ril] = 1
+                            num_absent += 1
+                            ril_absent.append(ril)
+                            num_footprint += 1
+                            ril_footprint.append(ril)
                         elif flag == 4:
                             mPing_excision[mping][ril] = 2
+                            num_absent += 1
+                            ril_absent.append(ril)
+                        elif flag == 2:
+                            ##coverage too low
+                            num_unsure += 1
+                            ril_unsure.append(ril)
+                        elif flag == 3:
+                            ##other case
+                            num_unsure += 1
+                            ril_unsure.append(ril)
+                        elif flag == 1:
+                            ##have insertion
+                            num_present += 1
                     #print mPing_excision[mping]
+        print >> ofile_num, '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s' %(mping, num_present, num_absent, num_unsure, num_footprint, ','.join(ril_absent), ','.join(ril_unsure), ','.join(ril_footprint))
     return mPing_excision
 
 def preplot(frq, ancestor, excision):
@@ -378,7 +415,7 @@ def main():
     #mPing_ancestor = readmPing('HEG4.mping.non-ref.gff')
     mPing_rils     = readtable(args.input)
     mPing_frq      = mping_frequency(args.input)
-    mPing_excision = excision(mPing_ancestor, mPing_rils, mPing_frq)
+    mPing_excision = excision(mPing_ancestor, mPing_rils, mPing_frq, 'mping.excision.number')
     preplot(mPing_frq, mPing_ancestor, mPing_excision)
 
 if __name__ == '__main__':

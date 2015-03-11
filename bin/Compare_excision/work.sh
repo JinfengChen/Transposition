@@ -21,6 +21,22 @@ echo "Analyze excision in RILs"
 python Excision.py --input RIL275_RelocaTEi.CombinedGFF.characterized.gff > log 2> log2 &
 qsub -q js runEx.sh
 
+python Excision_Ref.py --input RIL275_RelocaTE.CombinedGFF.Shared.gff --mode Shared
+python Excision_Ref.py --input RIL275_RelocaTE.CombinedGFF.Ref_only.gff --mode Ref
+python Excision_Ref.py --input RIL275_RelocaTEi.CombinedGFF.characterized.gff --mode Non_Ref
+
+python Excision_test.py --input RIL275_RelocaTEi.CombinedGFF.characterized.gff > log3 2> log4 &
+
+echo "stat"
+#207 of 555 mping have excision events
+wc -l mping.excision.table
+#374 of 905 excision events have footprint
+grep ">" -v mping.excision.table.log | wc -l
+grep ">" -v mping.excision.table.log | awk '$2==1' | wc -l
+
+#14 excision event occured in more than 10 RILs
+awk '$2>=10' mping.excision.table | wc -l
+
 echo "Draw allele frequency of insertions sites that have excision events in RILs. This is partial data of allele frequency of all insertion sites"
 cat mping.excision.frq.R | R --slave
 
@@ -32,4 +48,11 @@ cat mping.excision.avg.R | R --slave
 echo "correlation of excision number with ping, unique mping, mping number in RILs"
 python mping.excision.ril.py --input bamcheck.log
 cat mping.excision.ril.R | R --slave
+
+
+echo "test difference between non_ref and ref_pnly excision"
+cat fisher.test.R | R --slave
+
+echo "get sub bam for draw example"
+python get_excision_bam.py --input mping.excision.draw.example
 

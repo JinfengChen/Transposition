@@ -31,5 +31,6 @@ python RunTEMP_sumtable.py --input RIL275_TEMP
 echo "Run RelocaTE on 275 RILs"
 cut -f2,3 EG4.mping.all_reference.txt > Nipponbare.mPing.txt
 python RunRelocaTE_Pop.py --input /rhome/cjinfeng/BigData/00.RD/RILs/QTL_pipe/input/fastq/RILs_ALL_fastq --project RIL275_RelocaTE
+python RunCheckResults.py --input RIL275_RelocaTE --tools RelocaTE > RIL275_RelocaTE.lowcpmping.list
 
-
+python RunRelocaTE_CombinedGFF.py --input RIL275_RelocaTE
