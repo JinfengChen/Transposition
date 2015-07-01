@@ -24,7 +24,7 @@ def fasta_id(fastafile):
 
 #Chr1:6806761-6806763	10,117,130,134,207,44,264,78,22
 #Chr1:36270511-36270513	122,125,127,63,98,89
-def readtable(infile):
+def readtable(infile, output):
     with open (infile, 'r') as filehd:
         for line in filehd:
             line = line.rstrip()
@@ -34,17 +34,18 @@ def readtable(infile):
                 rils  = re.split(r',', unit[1])
                 for ril in rils:
                     bam = '/rhome/cjinfeng/BigData/00.RD/RILs/QTL_pipe/input/fastq/RILs_ALL_bam/GN%s.bam' %(ril)
-                    subbam(mping, ril, bam)
+                    subbam(mping, ril, bam, output)
 
-def subbam(mping, ril, bam):
+def subbam(mping, ril, bam, output):
     reg = re.compile(r'(Chr\d+):(\d+)\-(\d+)')
     match = reg.search(mping)
     start = int(match.groups(0)[1])
     end   = int(match.groups(0)[2])
     chro    = match.groups(0)[0]
     region  = '%s:%s-%s' %(chro, start-1000, end+1000)
-    outdir  = './test_example_draw/%s' %(mping)
+    outdir  = './%s/%s' %(output, mping)
     if not os.path.exists(outdir):
+        os.mkdir(output)
         os.mkdir(outdir)
     test_bam = '%s/%s_%s.bam' %(outdir, ril, mping)
     os.system('samtools view -hb %s %s > %s' %(bam, region, test_bam))
@@ -62,7 +63,10 @@ def main():
         usage()
         sys.exit(2)
 
-    readtable(args.input)
+    if not args.output:
+        args.output = 'test_example_draw'
+
+    readtable(args.input, args.output)
 
 if __name__ == '__main__':
     main()

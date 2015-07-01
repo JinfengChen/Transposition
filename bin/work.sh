@@ -34,3 +34,7 @@ python RunRelocaTE_Pop.py --input /rhome/cjinfeng/BigData/00.RD/RILs/QTL_pipe/in
 python RunCheckResults.py --input RIL275_RelocaTE --tools RelocaTE > RIL275_RelocaTE.lowcpmping.list
 
 python RunRelocaTE_CombinedGFF.py --input RIL275_RelocaTE
+
+echo "add unique mping"
+python MergeTable.py --table1 Compare_fig/RIL275_RelocaTEi.summary.table --table2 RIL275_RelocaTE.sofia.unique.table2 > Compare_fig/RIL275_RelocaTEi_unique.summary.table
+

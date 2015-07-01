@@ -35,7 +35,11 @@ grep ">" -v mping.excision.table.log | wc -l
 grep ">" -v mping.excision.table.log | awk '$2==1' | wc -l
 
 #14 excision event occured in more than 10 RILs
-awk '$2>=10' mping.excision.table | wc -l
+awk '$2>=10' mping.excision.non_ref.table | wc -l
+awk '$2>=10' mping.excision.non_ref.table > mping.excision.non_ref.10more.table
+#24 excision event occured in 5-10 RILs
+awk '$2>=5 && $2<10' mping.excision.non_ref.table | wc -l
+awk '$2>=5 && $2<10' mping.excision.non_ref.table > mping.excision.non_ref.5-10.table
 
 echo "Draw allele frequency of insertions sites that have excision events in RILs. This is partial data of allele frequency of all insertion sites"
 cat mping.excision.frq.R | R --slave
@@ -55,4 +59,8 @@ cat fisher.test.R | R --slave
 
 echo "get sub bam for draw example"
 python get_excision_bam.py --input mping.excision.draw.example
+
+echo "excision mPing gff"
+python Excision_GFF.py --input mping.excision.non_ref.table --gff HEG4.ALL.mping.non-ref.gff
+perl AnnoTEsite.pl --te mping.excision.non_ref.gff --gene /rhome/cjinfeng/HEG4_cjinfeng/seqlib/GFF/MSU7.gene.gff &
 
