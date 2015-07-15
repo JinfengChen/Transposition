@@ -42,10 +42,11 @@ def subbam(mping, ril, bam, output):
     start = int(match.groups(0)[1])
     end   = int(match.groups(0)[2])
     chro    = match.groups(0)[0]
-    region  = '%s:%s-%s' %(chro, start-1000, end+1000)
+    region  = '%s:%s-%s' %(chro, start-100000, end+100000)
     outdir  = './%s/%s' %(output, mping)
-    if not os.path.exists(outdir):
+    if not os.path.exists(output):
         os.mkdir(output)
+    if not os.path.exists(outdir):
         os.mkdir(outdir)
     test_bam = '%s/%s_%s.bam' %(outdir, ril, mping)
     os.system('samtools view -hb %s %s > %s' %(bam, region, test_bam))
