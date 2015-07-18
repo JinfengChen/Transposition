@@ -162,17 +162,19 @@ def main():
     ofile = open(matrix_file, 'w')
     mping_ranked= sort_mping_chr(mping2ID_0)
     #mping names
-    print >> ofile, 'mPing\t%s' %('\t'.join(mping_ranked))
+    print >> ofile, 'mPing,%s' %(','.join(mping_ranked))
     #mping genotype
     #mping status, matirx
     for ril in sorted(mping_status.keys(), key=int):
         inf_line = ['RIL%s' %(ril)]
         for mping in mping_ranked:
-            #inf_line.append(mping_status[ril][mping]['up'])
-            #inf_line.append(mping_status[ril][mping]['down'])
-            status = '%s:%s' %(mping_status[ril][mping]['up'], mping_status[ril][mping]['down'])
-            inf_line.append(status)
-        print >> ofile, '\t'.join(inf_line)
+            inf_line.append(mping_bin_gt[ril][mping])
+            inf_line.append(mping_status[ril][mping]['up'])
+            inf_line.append(mping_status[ril][mping]['down'])
+            inf_line.append(mping_status_ref[ril][mping])
+            #status = '%s:%s' %(mping_status[ril][mping]['up'], mping_status[ril][mping]['down'])
+            #inf_line.append(status)
+        print >> ofile, ','.join(inf_line)
     ofile.close()
 
     #output matrix for individual mPing file
@@ -180,20 +182,93 @@ def main():
     if not os.path.exists(outdir):
         os.mkdir(outdir)
 
+    sum_lines_matrix = defaultdict(lambda : list())
     for mping in mping_ranked:
+        sum_gt           = [0, 0, 0]
+        sum_ref_coverage = defaultdict(lambda : defaultdict(lambda : int()))
+        sum_ref_covered  = defaultdict(lambda : defaultdict(lambda : int()))
+        sum_ref_clipped  = defaultdict(lambda : defaultdict(lambda : int()))
+        sum_nonref_coverage = defaultdict(lambda : defaultdict(lambda : int()))
+        sum_nonref_covered  = defaultdict(lambda : defaultdict(lambda : int()))
+        sum_nonref_clipped  = defaultdict(lambda : defaultdict(lambda : int()))
         mping_name = re.sub(r':', r'_', mping)
         mping_name = re.sub(r'-', r'_', mping_name)
-        ofile = open('%s/%s.matrix.txt' %(outdir, mping_name), 'w')
+        ofile = open('%s/%s.matrix.csv' %(outdir, mping_name), 'w')
         #print >> ofile, 'RILs\tDepth(X)\tGenotype_Bin\tDistance_SNP5\tGenotype_SNP5\tDistance_SNP3\tGenotype_SNP3\tmPing_status'
-        print >> ofile, 'RILs\tGenotype_Bin\tmPing_status'
+        print >> ofile, 'RILs,Genotype_Bin,Pseudo_mPing_status_up,Pseudo_mPing_status_down,Ref_mPing_status'
         for ril in sorted(mping_status.keys(), key=int):
             #status in pseudo and ref genome have different results
             #in pseudogenome, cover mean junction was covered by reads, which indicates insertion
             #in refgenome, cover mean junction was covered by reads, which indicates no insertion or excision
-            status     = '%s:%s' %(mping_status[ril][mping]['up'], mping_status[ril][mping]['down'])
+            #status     = '%s:%s' %(mping_status[ril][mping]['up'], mping_status[ril][mping]['down'])
+            status_up  = mping_status[ril][mping]['up']
+            status_down= mping_status[ril][mping]['down']
             status_ref = mping_status_ref[ril][mping]
-            print >> ofile, 'RIL%s\t%s\t%s\t%s' %(ril, mping_bin_gt[ril][mping], status, status_ref)
-        ofile.close() 
+            print >> ofile, 'RIL%s,%s,%s,%s,%s' %(ril, mping_bin_gt[ril][mping], status_up, status_down, status_ref)
+            if mping_bin_gt[ril][mping] == 'NB':
+                sum_gt[0] += 1
+            elif mping_bin_gt[ril][mping] == 'HEG4':
+                sum_gt[1] += 1
+            else:
+                sum_gt[2] += 1
+            if 1:
+                gt = mping_bin_gt[ril][mping]
+                #summary on mping status in ref mapping bam, 0 mean only one status for each mPing
+                if status_ref == 'covered':
+                    sum_ref_coverage[gt][0] += 1
+                    sum_ref_covered[gt][0]  += 1
+                elif status_ref == 'clipped':
+                    sum_ref_coverage[gt][0] += 1
+                    sum_ref_clipped[gt][0]  += 1
+                #summary on mping status in pseudo mapping bam, 0 mean upstream status and 1 mean downstream status
+                if mping_status[ril][mping]['up'] == 'covered':
+                    sum_nonref_coverage[gt][0] += 1
+                    sum_nonref_covered[gt][0]  += 1
+                elif mping_status[ril][mping]['up'] == 'clipped':
+                    sum_nonref_coverage[gt][0] += 1
+                    sum_nonref_clipped[gt][0]  += 1
+                if mping_status[ril][mping]['down'] == 'covered':
+                    sum_nonref_coverage[gt][1] += 1
+                    sum_nonref_covered[gt][1]  += 1
+                elif mping_status[ril][mping]['down'] == 'clipped':
+                    sum_nonref_coverage[gt][1] += 1
+                    sum_nonref_clipped[gt][1]  += 1
+        #total line, perfectage of coverage
+        total_gt = (sum_gt[0] + sum_gt[1])/float(sum(sum_gt))
+        total_up   = sum_nonref_coverage['NB'][0]/float(sum(sum_gt)) + sum_nonref_coverage['HEG4'][0]/float(sum(sum_gt)) + sum_nonref_coverage['NA'][0]/float(sum(sum_gt))
+        total_down = sum_nonref_coverage['NB'][1]/float(sum(sum_gt)) + sum_nonref_coverage['HEG4'][1]/float(sum(sum_gt)) + sum_nonref_coverage['NA'][1]/float(sum(sum_gt))
+        total_ref  = sum_ref_coverage['NB'][0]/float(sum(sum_gt)) + sum_ref_coverage['HEG4'][0]/float(sum(sum_gt)) + sum_ref_coverage['NA'][0]/float(sum(sum_gt))
+        print >> ofile, 'Total,%s,%s,%s,%s' %(total_gt, total_up, total_down, total_ref)
+        sum_lines_matrix['total'].append('%s,%s,%s,%s' %(total_gt, total_up, total_down, total_ref)) 
+        #NB line, covered/clipped/unknown
+        nb_gt   = sum_gt[0]
+        nb_up   = '%s:%s:%s' %(sum_nonref_covered['NB'][0], sum_nonref_clipped['NB'][0], sum_gt[0]-sum_nonref_covered['NB'][0]-sum_nonref_clipped['NB'][0])
+        nb_down = '%s:%s:%s' %(sum_nonref_covered['NB'][1], sum_nonref_clipped['NB'][1], sum_gt[0]-sum_nonref_covered['NB'][1]-sum_nonref_clipped['NB'][1])
+        nb_ref  = '%s:%s:%s' %(sum_ref_covered['NB'][0], sum_ref_clipped['NB'][0], sum_gt[0]-sum_ref_covered['NB'][0]-sum_ref_clipped['NB'][0])
+        print >> ofile, 'NB,%s,%s,%s,%s' %(nb_gt, nb_up, nb_down, nb_ref)
+        sum_lines_matrix['nb'].append('%s,%s,%s,%s' %(nb_gt, nb_up, nb_down, nb_ref))
+        #HEG4 line, covered/clipped/unknown
+        heg4_gt = sum_gt[1]
+        heg4_up   = '%s:%s:%s' %(sum_nonref_covered['HEG4'][0], sum_nonref_clipped['HEG4'][0], sum_gt[1]-sum_nonref_covered['HEG4'][0]-sum_nonref_clipped['HEG4'][0])
+        heg4_down = '%s:%s:%s' %(sum_nonref_covered['HEG4'][1], sum_nonref_clipped['HEG4'][1], sum_gt[1]-sum_nonref_covered['HEG4'][1]-sum_nonref_clipped['HEG4'][1])
+        heg4_ref  = '%s:%s:%s' %(sum_ref_covered['HEG4'][0], sum_ref_clipped['HEG4'][0], sum_gt[1]-sum_ref_covered['HEG4'][0]-sum_ref_clipped['HEG4'][0])
+        print >> ofile, 'HEG4,%s,%s,%s,%s' %(heg4_gt, heg4_up, heg4_down, heg4_ref)
+        sum_lines_matrix['heg4'].append('%s,%s,%s,%s' %(heg4_gt, heg4_up, heg4_down, heg4_ref))
+        #NA line, covered/clipped/unknown
+        na_gt = sum_gt[2]
+        na_up   = '%s:%s:%s' %(sum_nonref_covered['NA'][0], sum_nonref_clipped['NA'][0], sum_gt[2]-sum_nonref_covered['NA'][0]-sum_nonref_clipped['NA'][0])
+        na_down = '%s:%s:%s' %(sum_nonref_covered['NA'][1], sum_nonref_clipped['NA'][1], sum_gt[2]-sum_nonref_covered['NA'][1]-sum_nonref_clipped['NA'][1])
+        na_ref  = '%s:%s:%s' %(sum_ref_covered['NA'][0], sum_ref_clipped['NA'][0], sum_gt[2]-sum_ref_covered['NA'][0]-sum_ref_clipped['NA'][0])
+        print >> ofile, 'NA,%s,%s,%s,%s' %(na_gt, na_up, na_down, na_ref)
+        sum_lines_matrix['na'].append('%s,%s,%s,%s' %(na_gt, na_up, na_down, na_ref))
+        ofile.close()
+    #add summary to big matrix
+    ofile = open(matrix_file, 'a')
+    print >> ofile, '%s,%s' %('Total', ','.join(sum_lines_matrix['total']))
+    print >> ofile, '%s,%s' %('NB',    ','.join(sum_lines_matrix['nb']))
+    print >> ofile, '%s,%s' %('HEG4',  ','.join(sum_lines_matrix['heg4']))
+    print >> ofile, '%s,%s' %('NA',    ','.join(sum_lines_matrix['na']))
+    ofile.close()
 
 if __name__ == '__main__':
     main()
