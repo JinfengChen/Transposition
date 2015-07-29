@@ -257,9 +257,9 @@ def bamcheck(bam, mping, bamck_file, ril):
 
     chro    = match.groups(0)[0]
     region  = '%s:%s-%s' %(chro, start-500, end+500)  
-    test_bam = './test_bam/%s_%s.bam' %(ril, mping)
-    os.system('samtools view -hb %s %s > %s' %(bam, region, test_bam))
-    os.system('samtools index %s' %(test_bam))
+    #test_bam = './test_bam/%s_%s.bam' %(ril, mping)
+    #os.system('samtools view -hb %s %s > %s' %(bam, region, test_bam))
+    #os.system('samtools index %s' %(test_bam))
 
     cmd = '/opt/linux/centos/7.x/x86_64/pkgs/samtools/1.2/bin/samtools view %s %s' %(bam, mping)
     ofile = open(bamck_file, 'a') 
