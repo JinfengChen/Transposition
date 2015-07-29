@@ -9,6 +9,7 @@ from Bio import SeqIO
 import subprocess
 sys.path.append('%s/lib' %(os.getcwd()))
 from excision import bamcheck, bamcheck_simple, convert_MAP, genotyping
+import glob
 
 def usage():
     test="name"
@@ -95,6 +96,15 @@ def sort_mping_chr(mpings):
             sorted_mping.append(data[c][s])
     return sorted_mping
 
+def get_rils(bams):
+    rils = []
+    for bam in bams:
+        ril = os.path.split(bam)[1]
+        ril = re.sub(r'.bam', r'', ril)
+        ril = re.sub(r'RIL', r'', ril)
+        rils.append(ril)
+    return rils
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--bam_ref')
@@ -138,7 +148,9 @@ def main():
     mping_status_ref  = defaultdict(lambda : defaultdict(lambda : str()))
     mping_bin_gt  = defaultdict(lambda : defaultdict(lambda : str()))
     mping_snp_gt  = defaultdict(lambda : defaultdict(lambda : defaultdict(lambda : str())))
-    rils = [1, 2, 3, 4]
+    #rils = [1, 2, 3, 4]
+    bams = glob.glob('%s/*.bam' %(args.bam_pseudo))
+    rils = get_rils(bams)
     for ril in sorted(rils):
         bam_ref    = '%s/GN%s.bam' %(args.bam_ref, ril)
         bam_pseudo = '%s/RIL%s.bam' %(args.bam_pseudo, ril)
@@ -162,7 +174,12 @@ def main():
     ofile = open(matrix_file, 'w')
     mping_ranked= sort_mping_chr(mping2ID_0)
     #mping names
-    print >> ofile, 'mPing,%s' %(','.join(mping_ranked))
+    #print >> ofile, 'mPing,%s' %(','.join(mping_ranked))
+    mping_lines = ['mPing']
+    for m in mping_ranked:
+        mping_lines.append('%s,Genotype,Pseudo_up,Pseudo_down,Ref' %(m))
+    print >> ofile, ','.join(mping_lines)
+
     #mping genotype
     #mping status, matirx
     for ril in sorted(mping_status.keys(), key=int):
@@ -195,7 +212,7 @@ def main():
         mping_name = re.sub(r'-', r'_', mping_name)
         ofile = open('%s/%s.matrix.csv' %(outdir, mping_name), 'w')
         #print >> ofile, 'RILs\tDepth(X)\tGenotype_Bin\tDistance_SNP5\tGenotype_SNP5\tDistance_SNP3\tGenotype_SNP3\tmPing_status'
-        print >> ofile, 'RILs,Genotype_Bin,Pseudo_mPing_status_up,Pseudo_mPing_status_down,Ref_mPing_status'
+        print >> ofile, '%s,Genotype_Bin,Pseudo_mPing_status_up,Pseudo_mPing_status_down,Ref_mPing_status' %(mping)
         for ril in sorted(mping_status.keys(), key=int):
             #status in pseudo and ref genome have different results
             #in pseudogenome, cover mean junction was covered by reads, which indicates insertion
