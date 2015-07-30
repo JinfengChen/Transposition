@@ -1,0 +1,5 @@
+#testor = rbind(c(11, 2), c(92, 448))
+#testor = rbind(c(19,52), c(178, 381))
+testor = rbind(c(24, 47), c(288, 278))
+chisq.test(testor)
+fisher.test(testor)

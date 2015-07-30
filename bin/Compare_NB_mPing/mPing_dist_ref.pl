@@ -45,8 +45,13 @@ close IN;
 
 foreach my $c (sort keys %hash){
     my @pos = sort {$a <=> $b} @{$hash{$c}};
-    for (my $i=0; $i<@pos-1; $i++){
-        my $dist = $pos[$i+1] - $pos[$i];
+    my $dist_first = $pos[1] - $pos[0];
+    my $index = "$c\_$pos[0]";
+    print "$c\t$pos[0]\t$dist_first\t$type{$index}\n";
+    for (my $i=1; $i<@pos-1; $i++){
+        my $dist1 = $pos[$i+1] - $pos[$i];
+        my $dist2 = $pos[$i] - $pos[$i-1];
+        my $dist  = $dist1 < $dist2 ? $dist1 : $dist2;
         my $index = "$c\_$pos[$i]";
         print "$c\t$pos[$i]\t$dist\t$type{$index}\n"; 
     }
