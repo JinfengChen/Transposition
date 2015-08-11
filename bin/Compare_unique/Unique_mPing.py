@@ -100,7 +100,7 @@ def main():
         sys.exit(2)
 
     if not args.reference:
-        args.reference = 'HEG4.mping.non-ref.gff'
+        args.reference = 'HEG4.ALL.mping.non-ref.gff'
     if not args.window:
         args.window    = 5
     if not args.output:
