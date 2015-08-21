@@ -1,0 +1,4 @@
+Simulation	histogram	/rhome/cjinfeng/BigData/00.RD/Intron/mPing_TSD/bin/simulate_TSD9mer_somaticMat/Simulate0001.gff
+Somatic	histogram	/rhome/cjinfeng/BigData/00.RD/Intron/Intron_mPing/input/Somatic.gff
+RIL	histogram	/rhome/cjinfeng/BigData/00.RD/Intron/Intron_mPing/input/RIL.gff
+Strain	histogram	/rhome/cjinfeng/BigData/00.RD/Intron/Intron_mPing/input/Strains.gff
