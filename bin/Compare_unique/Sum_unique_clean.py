@@ -63,7 +63,8 @@ def readtable_ril(infile, mping_correct):
             line = line.rstrip()
             if len(line) > 2: 
                 unit = re.split(r'\t',line)
-                if not unit[1] == unit[10]:
+                #if not unit[1] == unit[10]:
+                if not unit[1] == unit[10] and unit[3] == unit[12] and unit[4] == unit[13]:
                     mping1= '%s:%s-%s' %(unit[0], unit[3], unit[4])
                     mping2= '%s:%s-%s' %(unit[9], unit[12], unit[13])
                     ril1  = r.search(unit[1]).groups(0)[0] if r.search(unit[1]) else 'NA'
@@ -72,7 +73,7 @@ def readtable_ril(infile, mping_correct):
                         mping1 = mping_correct[mping1]
                     if mping_correct.has_key(mping2):
                         mping2 = mping_correct[mping2]
-                    print '%s\t%s\t%s\t%s' %(mping1, ril1, mping2, ril2)
+                    #print '%s\t%s\t%s\t%s' %(mping1, ril1, mping2, ril2)
                     data[mping1][ril1] = 1
                     data[mping2][ril2] = 1
     return data
@@ -84,13 +85,14 @@ def readtable_nonref(infile, mping_correct):
     with open (infile, 'r') as filehd:
         for line in filehd:
             line = line.rstrip()
-            if len(line) > 2: 
+            if len(line) > 2:
                 unit = re.split(r'\t',line)
-                mping= '%s:%s-%s' %(unit[0], unit[3], unit[4])
-                ril  = r.search(unit[1]).groups(0)[0] if r.search(unit[1]) else 'NA'
-                if mping_correct.has_key(mping):
-                    mping = mping_correct[mping]
-                data[mping][ril] = 1
+                if unit[3] == unit[12] and unit[4] == unit[13]:
+                    mping= '%s:%s-%s' %(unit[0], unit[3], unit[4])
+                    ril  = r.search(unit[1]).groups(0)[0] if r.search(unit[1]) else 'NA'
+                    if mping_correct.has_key(mping):
+                        mping = mping_correct[mping]
+                    data[mping][ril] = 1
     return data
 
 ##unique mping
@@ -138,8 +140,12 @@ def main():
             start = m.groups(0)[1]
             end   = m.groups(0)[2]
         count = len(mping_ovlp_rils[mping].keys())
-        print >> ofile1, '%s\t%s' %(mping, ','.join(map(str, mping_ovlp_rils[mping].keys())))
-        print >> ofile, '%s\t%s\t%s\t%s\t%s\t%s\t%s' %(chro, start, end, mping, '+', count, float(count)/275)
+        if mping_ovlp_heg4.has_key(mping):
+            print >> ofile1, '%s\tParental\t%s' %(mping, ','.join(map(str, mping_ovlp_rils[mping].keys())))
+            print >> ofile, '%s\t%s\t%s\t%s\t%s\t%s\t%s\tParental' %(chro, start, end, mping, '+', count, float(count)/275)
+        else:
+            print >> ofile1, '%s\tRIL\t%s' %(mping, ','.join(map(str, mping_ovlp_rils[mping].keys())))
+            print >> ofile, '%s\t%s\t%s\t%s\t%s\t%s\t%s\tRIL' %(chro, start, end, mping, '+', count, float(count)/275)
     ofile.close()
     ofile1.close()
 

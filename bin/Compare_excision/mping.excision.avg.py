@@ -54,7 +54,7 @@ def readfile(infile):
         avg = mean(map(float ,data[str(k)]))
         var = std(map(float ,data[str(k)]))
         values = ','.join(data[str(k)])
-        print >> ofile, k, avg, var, values
+        print >> ofile, k, avg, var, len(data[str(k)]), values
     return data
     ofile.close()
 

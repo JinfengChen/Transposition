@@ -78,7 +78,7 @@ def parse_overlap(infile):
             line = line.rstrip()
             if len(line) > 2 and not line.startswith(r'#'):
                 unit = re.split(r'\t', line)
-                if not unit[1] == unit[10]:
+                if not unit[1] == unit[10] and unit[3] == unit[12] and unit[4] == unit[13]:
                     index       = '%s:%s_%s_%s' %(unit[1], unit[0], unit[3], unit[4])
                     data[index] = 1
     return data
@@ -109,11 +109,11 @@ def main():
         args.code      = 'RIL275_RelocaTE.sofia.ping_code.table'
 
     overlap_ref     = '%s.overlap_ref' %(os.path.splitext(args.input)[0])
-    bed_overlap_ref = 'bedtools window -w %s -a %s -b %s > %s' %(args.window, args.input, args.reference, overlap_ref)
+    bed_overlap_ref = 'bedtools intersect -f 1 -a %s -b %s > %s' %(args.input, args.reference, overlap_ref)
     if not os.path.isfile(overlap_ref):
         os.system(bed_overlap_ref)
     overlap_ril     = '%s.overlap_ril' %(os.path.splitext(args.input)[0])
-    bed_overlap_ril = 'bedtools window -w %s -a %s -b %s > %s' %(args.window, args.input, args.input, overlap_ril)
+    bed_overlap_ril = 'bedtools intersect -f 1 -a %s -b %s > %s' %(args.input, args.input, overlap_ril)
     if not os.path.isfile(overlap_ril):
         os.system(bed_overlap_ril)
     overlap_ref_d   = parse_overlap(overlap_ref)
