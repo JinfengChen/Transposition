@@ -160,8 +160,8 @@ axis(1,c(0.9,pos_marks[length(pos)]), line=0.2,labels=c("1","275"))
 
 #hom/het/som
 relocatei_sortbydepth <- relocatei[order(relocatei[,5]),]
-relocatei_calls <- rbind(relocatei_sortbydepth[,11], relocatei_sortbydepth[,12], relocatei_sortbydepth[,13])
-barx <- barplot(relocatei_calls, ylim=c(0, 700), border=FALSE, col=c("cornflowerblue","darkseagreen","bisque4"), xlab='RILs', ylab='mPing insertions')
+relocatei_calls <- rbind(relocatei_sortbydepth[,11], relocatei_sortbydepth[,12] + relocatei_sortbydepth[,13])
+barx <- barplot(relocatei_calls, ylim=c(0, 700), border=FALSE, col=c("cornflowerblue", "bisque4"), xlab='RILs', ylab='mPing insertions')
 step <- (max(barx)+0.6-0.9)/275
 pos <- c(seq(1, 275, by=23), 275)
 pos_marks <- step*pos
@@ -169,12 +169,12 @@ pos_marks <- step*pos
 axis(1,c(0.9,pos_marks[length(pos)]), line=0.2,labels=c("1","275"))
 #marks <- as.integer(relocatei_sortbydepth[,5][pos])
 #text(pos_marks, rep(-150, 13),offset=2,labels=as.integer(marks),srt=0,xpd=TRUE)
-legend(220, 700, c("Homozygous", "Heterozygous", "Somatic"),bty="n",border="NA",lty=c(0,0),cex=1,fill=c("cornflowerblue","darkseagreen","bisque4"))
+legend(220, 700, c("Homozygous", "Heterozygous"),bty="n",border="NA",lty=c(0,0),cex=1,fill=c("cornflowerblue", "bisque4"))
 
 #unique
 relocatei_sortbydepth <- relocatei[order(relocatei[,5]),]
 relocatei_calls <- rbind(relocatei_sortbydepth[,15], relocatei_sortbydepth[,16], relocatei_sortbydepth[,18])
-barx <- barplot(relocatei_calls, ylim=c(0, 700), border=FALSE, col=c("cornflowerblue","darkseagreen","bisque4"), xlab='RILs', ylab='mPing insertions')
+barx <- barplot(relocatei_calls, ylim=c(0, 700), border=FALSE, col=c("mediumorchid4", "lightpink3", "darkseagreen"), xlab='RILs', ylab='mPing insertions')
 step <- (max(barx)+0.6-0.9)/275
 pos <- c(seq(1, 275, by=23), 275)
 pos_marks <- step*pos
@@ -182,7 +182,7 @@ pos_marks <- step*pos
 axis(1,c(0.9,pos_marks[length(pos)]), line=0.2,labels=c("1","275"))
 #marks <- as.integer(relocatei_sortbydepth[,5][pos])
 #text(pos_marks, rep(-150, 13),offset=2,labels=as.integer(marks),srt=0,xpd=TRUE)
-legend(220, 700, c("Parental", "Shared", "Unique"),bty="n",border="NA",lty=c(0,0),cex=1,fill=c("cornflowerblue","darkseagreen","bisque4"))
+legend(220, 700, c("Parental", "Shared", "Unique"),bty="n",border="NA",lty=c(0,0),cex=1,fill=c("mediumorchid4", "lightpink3", "darkseagreen"))
 
 
 par(mfrow=c(1,1))

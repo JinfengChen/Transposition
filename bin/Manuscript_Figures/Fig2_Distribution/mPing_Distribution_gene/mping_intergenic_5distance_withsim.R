@@ -32,7 +32,7 @@ error.bar(1:length(sim5[,4]), rev(sim5[,4]), rev(sim5[,7]-sim5[,4]), rev(sim5[,7
 axis(1,seq(1:length(som5[,1])),line=0, labels=rep("",length(som5[,1])))
 text(seq(1:length(som5[,1][-1]))+0.5,rep(-0.02,7), cex=1, offset=2,labels=rev(som5[,1]*500/-1000)[-1],srt=55,xpd=TRUE)
 
-legend('topright', bty='n', border='NA', lty= c(1,2,3,4), pch = c(1,2,3,20), cex=1 , lwd = 2 ,col=c("aquamarine3", "steelblue2", "sandybrown", "dim gray"), c("Somatic", "RIL", "Strains", "Simulation"))
+legend('topright', bty='n', border='NA', lty= c(1,2,3,4), pch = c(1,2,3,20), cex=1 , lwd = 2 ,col=c("aquamarine3", "steelblue2", "sandybrown", "dim gray"), c("Somatic", "RIL", "Landrace", "Simulation"))
 mtext("Distance to TSS (kp)", side=1,cex=1.2, at=9,line=3)
 
 

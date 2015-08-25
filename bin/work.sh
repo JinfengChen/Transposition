@@ -18,6 +18,7 @@ python RunInsertSize.py --input /rhome/cjinfeng/BigData/00.RD/RILs/Transpostion/
 python RunRelocaTEi_bam_Pop.py --input /rhome/cjinfeng/BigData/00.RD/RILs/Transpostion/input/bam --project RIL275_RelocaTEi > log 2> log2 &
 python RunCheckResults.py --input RIL275_RelocaTEi --tools RelocaTEi > RIL275_RelocaTEi.lowcpmping.list
 python RunRelocaTEi_sumtable.py --input RIL275_RelocaTEi
+python RunRelocaTEi_sumtable_clean.py --input RIL275_RelocaTEi
 python RunRelocaTEi_CombinedGFF.py --input RIL275_RelocaTEi
 
 

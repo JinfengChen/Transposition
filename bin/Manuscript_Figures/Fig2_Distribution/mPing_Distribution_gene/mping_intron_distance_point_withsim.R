@@ -23,7 +23,7 @@ error.bar(1:length(sim[,4]), sim[,4], sim[,7]-sim[,4], sim[,7]-sim[,4], 1)
 axis(1,sim[,1],line=0, labels=rep("",length(sim[,1])))
 text(sim[,1],rep(-0.06,7), cex=1, offset=2,labels=sim[,2],srt=55,xpd=TRUE)
 
-legend('topright', bty='n', border='NA', lty= c(1,2,3,4), pch = c(1,2,3,20), cex=1 , lwd = 2 ,col=c("aquamarine3", "steelblue2", "sandybrown", "dim gray"), c("Somatic", "RIL", "Strains","Simulation"))
+legend('topright', bty='n', border='NA', lty= c(1,2,3,4), pch = c(1,2,3,20), cex=1 , lwd = 2 ,col=c("aquamarine3", "steelblue2", "sandybrown", "dim gray"), c("Somatic", "RIL", "Landrace","Simulation"))
 mtext("Distance to Exon (bp)", side=1,cex=1.2, at=4.5,line=4)
 
 

@@ -6,7 +6,9 @@ perl ~/software/bin/fastaDeal.pl --attr id:len MSU_r7.Pseudo_mPing.fa > MSU_r7.P
 #bedtools getfasta -fi MSU_r7.Pseudo_mPing.fa -bed MSU_r7.Pseudo_mPing.10kb_flank.bed -fo MSU_r7.Pseudo_mPing.10kb_flank.fa
 
 #get linked mPing within 100kb, deal with first. add 2 to ping position in MSU_r7.Pseudo_mPing.gff
-#python Get_linked_mPing_gff.py --gff ../input/MSU_r7.Pseudo_mPing.gff --distance ../input/mPing_dist.100kb.list.sorted
+python Get_linked_mPing_gff.py --gff ../input/MSU_r7.Pseudo_mPing.gff --distance ../input/mPing_dist.100kb.list.sorted
+python Get_linked_mPing_gff_ref.py --gff ../input/HEG4.ALL.mping.non-ref.gff --distance ../input/mPing_dist2.100kb.list.sorted
+python Get_linked_mPing_gff_ref.py --gff ../input/HEG4.ALL.mping.non-ref.AF0.1.gff --distance ../input/mPing_dist2.100kb.list.sorted
 #bedtools slop -i MSU_r7.Pseudo_mPing.linked_100kb.gff -g MSU_r7.Pseudo_mPing.chrlen -b 10000 > MSU_r7.Pseudo_mPing.linked_100kb.10kb_flank.bed
 #100kb linked
 #bedtools getfasta -fi MSU_r7.Pseudo_mPing.fa -bed MSU_r7.Pseudo_mPing.linked_100kb.10kb_flank.bed -fo MSU_r7.Pseudo_mPing.linked_100kb.10kb_flank_temp.fa
@@ -38,6 +40,27 @@ ls RILs_ALL_bam/*.bam | sed 's/RILs_ALL_bam\///' | sed 's/.bam//' | sed 's/GN/RI
 ls RILs_ALL_unmapped_mping_bam/*.bam | sed 's/RILs_ALL_unmapped_mping_bam\///' | sed 's/.bam//' > rils.list1
 ls RILs_ALL_unmapped_mping_fastq/*/*_1.fq | sed 's/RILs_ALL_unmapped_mping_fastq\/RIL.*\///' | sed 's/_1.fq//' > rils.list2
 
-
 echo "For every mPing check both boundary if read cover the junction: cover, clipped reads (not cover), unsure"
+python mPing_Boundary_Coverage.py --bam_ref ../input/RILs_ALL_bam --bam_pseudo ../input/RILs_ALL_unmapped_mping_bam --gff_ref ../input/HEG4.ALL.mping.non-ref.gff --gff_pseudo ../input/MSU_r7.Pseudo_mPing.gff > log 2>&1 &
+python mPing_Boundary_Coverage.py --bam_ref ../input/RILs_ALL_bam --bam_pseudo ../input/RILs_ALL_unmapped_mping_bam --gff_ref ../input/HEG4.ALL.mping.non-ref.100.gff --gff_pseudo ../input/MSU_r7.Pseudo_mPing.100.gff > log 2>&1 &
+python mPing_Boundary_Coverage.py --bam_ref ../input/RILs_ALL_bam --bam_pseudo ../input/RILs_ALL_unmapped_mping_bam --gff_ref ../input/HEG4.ALL.mping.non-ref.high.gff --gff_pseudo ../input/MSU_r7.Pseudo_mPing.high.gff > log 2>&1 &
+python mPing_Boundary_Coverage.py --bam_ref ../input/RILs_ALL_bam --bam_pseudo ../input/RILs_ALL_unmapped_mping_bam --gff_ref ../input/HEG4.ALL.mping.non-ref.debug.gff --gff_pseudo ../input/MSU_r7.Pseudo_mPing.debug.gff > log 2>&1 &
+
+echo "summarize results from mPing_Boundary_Coverage.py"
+python Sum_linked_mPing_status.py --dir mPing_boundary_mPing --distance ../input/mPing_dist.100kb.list.sorted | sort -k2,2n > mPing_boundary.linked_100kb.table.txt
+python Sum_linked_mPing_status.py --dir mPing_boundary_mPing_manual --distance ../input/mPing_dist.100kb.list.sorted.1 --project mPing_boundary.linked_100kb_manual
+python Sum_linked_mPing_status.py --dir mPing_boundary_mPing --distance ../input/mPing_dist.100kb.list.sorted.1 --project mPing_boundary.linked_100kb_debug
+python Sum_linked_mPing_status.py --dir mPing_boundary_mPing --distance ../input/mPing_dist.100kb.list.sorted.2 --project mPing_boundary.linked_100kb_debug
+python Sum_linked_mPing_status.py --dir mPing_boundary_mPing --distance ../input/mPing_dist.100kb.list.sorted --project mPing_boundary.linked_100kb_debug
+#mPing_dist1: modified to count both side to shortest distance, only one change within 100kb
+python Sum_linked_mPing_status.py --dir mPing_boundary_mPing --distance ../input/mPing_dist1.100kb.list.sorted --project mPing_boundary.linked_100kb_debug1
+python Sum_linked_mPing_status.py --dir mPing_boundary_mPing --distance ../input/mPing_dist1.50Mb.list.sorted --project mPing_boundary.linked_50Mb_debug1
+#mPing_dist2: removed these AF<0.1
+python Sum_linked_mPing_status.py --dir mPing_boundary_mPing --distance ../input/mPing_dist2.100kb.list.sorted --project mPing_boundary.linked_100kb_debug2
+python Sum_linked_mPing_status.py --dir mPing_boundary_mPing --distance ../input/mPing_dist2.50Mb.list.sorted --project mPing_boundary.linked_50Mb_debug2
+
+echo "ave in 100 kb interval"
+python avg_interval.py --input mPing_boundary.linked_50Mb_debug2.table_clean.txt > mPing_boundary.linked_50Mb_debug2.table_clean.sum
+python avg_interval.py --input mPing_boundary.linked_50Mb_debug1.table_clean.txt > mPing_boundary.linked_50Mb_debug1.table_clean.sum
+cat avg_interval_test.R | R --slave
 

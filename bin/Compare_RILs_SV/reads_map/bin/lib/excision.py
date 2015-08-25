@@ -450,7 +450,7 @@ def bamcheck_simple(bam, mping, bamck_file):
     print >> ofile, covered, clipped
     print >> ofile, total, covered, clipped, flag, float(float(covered)/total), float(float(clipped)/total)
     rate = float(float(clipped)/covered) if covered > 0 else 0
-    if total <= 2:
+    if total <= 0:
         print >> ofile, 2
         return 2 # coverage too low
     elif float(float(clipped)/total) > 0.3:

@@ -86,22 +86,38 @@ def main():
  
     ofiles = []
     for i in range(0, len(bams.keys())):
-        #index = i/30
-        #ril   = sorted(bams.keys())[i]
-        #print '%s\t%s\t%s' %(i, index, ril)
-        #ofile = open('%s.%s.igv' %(args.output, index), 'a')
+        index = i/4
         ril   = sorted(bams.keys())[i]
-        ofile = open('%s.%s.igv' %(args.output, ril), 'w')
-        ofiles.append(ofile)
-        print >> ofile, 'new'
-        print >> ofile, 'snapshotDirectory %s' %(igv_snapshot_dir)
-        print >> ofile, 'load %s/%s.bam' %(ril_bam_dir, ril)
-        print >> ofile, 'load %s' %(mping_gff)
-        for chro in sorted(mpings.keys(), key=int):
-            for pos in sorted(mpings[chro].keys(), key=int):
-                mping = 'Chr%s_%s' %(chro, pos)
-                print >> ofile, 'goto %s' %(mpings[chro][pos][1])
-                print >> ofile, 'snapshot %s.%s.%s.png' %(mping, ril, mpings[chro][pos][0])
+        print '%s\t%s\t%s' %(i, index, ril)
+        #ofile = open('%s.%s.igv' %(args.output, index), 'a')
+        #ril   = sorted(bams.keys())[i]
+        #ofile = open('%s.%s.igv' %(args.output, ril), 'w')
+        #ofiles.append(ofile)
+       
+       #igv batch
+        if i%4 == 0: 
+            ofile = open('%s.%s.igv' %(args.output, index), 'w')
+            ofiles.append(ofile)
+            print >> ofiles[index], 'new'
+            print >> ofiles[index], 'snapshotDirectory %s' %(igv_snapshot_dir)
+            print >> ofiles[index], 'load %s' %(mping_gff)
+        print >> ofiles[index], 'load %s/%s.bam' %(ril_bam_dir, ril)
+        if i%4 == 3 or i == len(bams)-1:
+            for chro in sorted(mpings.keys(), key=int):
+                for pos in sorted(mpings[chro].keys(), key=int):
+                    mping = 'Chr%s_%s' %(chro, pos)
+                    print >> ofiles[index], 'goto %s' %(mpings[chro][pos][1])
+                    print >> ofiles[index], 'snapshot %s.%s.%s.png' %(mping, ril, mpings[chro][pos][0])
+ 
+        #print >> ofile, 'new'
+        #print >> ofile, 'snapshotDirectory %s' %(igv_snapshot_dir)
+        #print >> ofile, 'load %s/%s.bam' %(ril_bam_dir, ril)
+        #print >> ofile, 'load %s' %(mping_gff)
+        #for chro in sorted(mpings.keys(), key=int):
+        #    for pos in sorted(mpings[chro].keys(), key=int):
+        #        mping = 'Chr%s_%s' %(chro, pos)
+        #        print >> ofile, 'goto %s' %(mpings[chro][pos][1])
+        #        print >> ofile, 'snapshot %s.%s.%s.png' %(mping, ril, mpings[chro][pos][0])
     for ofile in ofiles:
         ofile.close()
 

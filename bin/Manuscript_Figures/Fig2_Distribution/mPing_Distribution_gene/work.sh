@@ -1,8 +1,8 @@
-#cat mping_position_breakY_withsim.R | R --slave
-#cat mping_intergenic_5distance_withsim.R | R --slave
-#cat mping_intergenic_3distance_withsim.R | R --slave
-#cat mping_intron_distance_point_withsim.R | R --slave
-#cat mping_intron_length_point_withsim.R | R --slave 
+cat mping_position_breakY_withsim.R | R --slave
+cat mping_intergenic_5distance_withsim.R | R --slave
+cat mping_intergenic_3distance_withsim.R | R --slave
+cat mping_intron_distance_point_withsim.R | R --slave
+cat mping_intron_length_point_withsim.R | R --slave 
 
 dirname=/rhome/cjinfeng/BigData/00.RD/RILs/Transpostion/bin/Manuscript_Figures/Fig2_Distribution/mPing_distr/
 echo "Intron length"

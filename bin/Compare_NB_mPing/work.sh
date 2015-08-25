@@ -8,3 +8,6 @@ cat HEG4.ALL.mping.non-ref.gff HEG4.mping.shared.gff HEG4.mping.ref_only.gff | s
 echo "distance"
 perl mPing_dist_ref.pl --input NB.ALL.mPing.gff | sort -k3,3n
 
+perl mPing_dist_ref.pl --input NB.ALL.mPing.gff | sort -k3,3n > NB.ALL.mPing.distance.txt
+perl mPing_dist_ref.pl --input HEG4.ALL.mPing.gff | sort -k3,3n > HEG4.ALL.mPing.distance.txt
+perl mPing_dist_ref.pl --input Parent.ALL.mPing.gff | sort -k3,3n > Parent.ALL.mPing.distance.txt

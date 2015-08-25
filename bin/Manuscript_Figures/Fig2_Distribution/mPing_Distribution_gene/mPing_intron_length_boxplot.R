@@ -26,7 +26,7 @@ x <- wilcox.test(str[,1],sim[,1],alternative="greater", correct=FALSE)
 
 boxplot(som[,1], ril[,1], str[,1], sim[,1], ylim=c(0,5500), outline=FALSE, col=c("aquamarine3", "steelblue2" ,"sandybrown","dim gray"), ylab="Length of Intron (bp)",xaxt='n',frame.plot=FALSE)
 #legend('topright', bty='n', border='NA', lty=c(0,0),cex=1 ,c("Somatic", "Strains", "RIL", "Simulation"),fill=c("aquamarine3", "steelblue2" ,"sandybrown", "dim gray"))
-text(1:4,rep(-900,7), cex=1, offset=2,labels=c("Somatic", "RIL", "Strains", "Simulation"),srt=55,xpd=TRUE)
+text(1:4,rep(-900,7), cex=1, offset=2,labels=c("Somatic", "RIL", "Landrace", "Simulation"),srt=55,xpd=TRUE)
 axis(1,c(0.5,4.5), labels=c("",""),line=0)
 pvalue(3.1,5000,4,3600,5100,x$p.value)
 pvalue(2.9,5000,1,4400,5100,y$p.value)

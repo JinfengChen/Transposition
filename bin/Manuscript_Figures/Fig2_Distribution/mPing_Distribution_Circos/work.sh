@@ -19,4 +19,5 @@ grep "Chr4" GFF.Strain.histogram.txt | awk '$2>17800000' | cut -d" " -f4 | perl 
 grep "Chr4" GFF.RIL.histogram.txt | awk '$2>17800000' | cut -d" " -f4 | perl ~/software/bin/numberStat.pl
 grep "Chr4" GFF.RIL.histogram.txt | awk '$2<17800000' | cut -d" " -f4 | perl ~/software/bin/numberStat.pl
 cat fisher.test.R | R --slave
-
+#strains and RIL showed significant different but not with Somatic
+#The sample size of strain are small we might just say overall similar?

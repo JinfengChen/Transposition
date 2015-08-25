@@ -34,7 +34,7 @@ axis(1,seq(1:length(som3[,1])),line=0, labels=rep("",length(som3[,1])))
 #text(som3[,1],rep(-0.03,7), cex=1, offset=2,labels=som3[,2],srt=55,xpd=TRUE)
 text(seq(1:length(som3[,1][-length(som3[,1])]))+0.5,rep(-0.02,7), cex=1, offset=2,labels=som3[,1][-length(som3[,1])]*500/-1000,srt=55,xpd=TRUE)
 
-legend('topright', bty='n', border='NA', lty= c(1,2,3,4), pch = c(1,2,3,20), cex=1 , lwd = 2 ,col=c("aquamarine3", "steelblue2", "sandybrown", "dim gray"), c("Somatic", "RIL", "Strains", "Simulation"))
+legend('topright', bty='n', border='NA', lty= c(1,2,3,4), pch = c(1,2,3,20), cex=1 , lwd = 2 ,col=c("aquamarine3", "steelblue2", "sandybrown", "dim gray"), c("Somatic", "RIL", "Landrace", "Simulation"))
 mtext("Distance to TTS (kp)", side=1,cex=1.2, at=9,line=3)
 
 dev.off()

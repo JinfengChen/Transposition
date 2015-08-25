@@ -46,7 +46,7 @@ def id_mapping(infile, mping2ID_0):
                 temp['ID'] = '%s:%s-%s' %(temp_ids[0], temp_ids[1], temp_ids[2])
                 temp_oids  = re.split(r'\.', temp['Original_ID'])
                 #print temp_oids
-                temp['Original_ID'] = '%s:%s-%s' %(temp_oids[0], temp_oids[1], str(int(temp_oids[1])-2))
+                temp['Original_ID'] = '%s:%s-%s' %(temp_oids[0], str(int(temp_oids[1])-2), temp_oids[1])
                 mping2ID_0[temp['ID']]  = temp['Original_ID']
                 #print '%s\t%s' %(temp['ID'], mping2ID_0[temp['ID']])
     return data
@@ -160,7 +160,7 @@ def main():
                 #genotype: 0 ref, 1 non_ref, 3 unknown
                 genotype = genotyping(ril, mping, binmap)
                 l_flag, r_flag = bamcheck_ref(bam_pseudo, mping, bamcheck_file_pseudo, ril)
-                ref_flag       = bamcheck(bam_ref, mping, bamcheck_file_ref, ril) 
+                ref_flag       = bamcheck(bam_ref, mping2ID_0[mping], bamcheck_file_ref, ril) 
                 #print '%s\t%s\t%s\t%s' %(ril, mping, l_flag, r_flag)
                 mping_status[ril][mping2ID_0[mping]]['up']   = decode(l_flag)
                 mping_status[ril][mping2ID_0[mping]]['down'] = decode(r_flag)

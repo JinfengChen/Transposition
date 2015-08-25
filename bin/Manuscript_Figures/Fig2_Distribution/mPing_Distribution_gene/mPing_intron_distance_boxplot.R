@@ -26,7 +26,7 @@ x <- wilcox.test(str[,1],sim[,1],alternative="greater", correct=FALSE)
 
 boxplot(som[,1], ril[,1], str[,1], sim[,1], ylim=c(0,4000), outline=FALSE, col=c("aquamarine3", "steelblue2" ,"sandybrown","dim gray"), ylab="Distance to exon (bp)",xaxt='n',frame.plot=FALSE)
 #legend('topright', bty='n', border='NA', lty=c(0,0),cex=1 ,c("Somatic", "Strains", "RIL", "Simulation"),fill=c("aquamarine3", "steelblue2" ,"sandybrown", "dim gray"))
-text(1:4,rep(-500,7), cex=1, offset=2,labels=c("Somatic", "RIL", "Strains", "Simulation"),srt=55,xpd=TRUE)
+text(1:4,rep(-500,7), cex=1, offset=2,labels=c("Somatic", "RIL", "Landrace", "Simulation"),srt=55,xpd=TRUE)
 axis(1,c(0.5,4.5), labels=c("",""),line=0)
 pvalue(3.1,3600,4,2700,3700,x$p.value)
 pvalue(2.9,3600,1,3500,3700,y$p.value)

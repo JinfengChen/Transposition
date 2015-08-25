@@ -4,32 +4,32 @@
 echo "RelocaTE2"
 echo "Somatic"
 bedtools intersect -a ../mPing_gff/Somatic.gff -b ../mPing_gff/MSU_r7.all.final.full.utr.gff3 -wao > Somatic.intersect
-python mPing_position.py --input Somatic.intersect
-python mPing_intron.py --input Somatic.intersect
 bedtools closest -a ../mPing_gff/Somatic.gff -b ../mPing_gff/MSU_r7.all.final.mRNA.gff -d > Somatic.mRNA.intersect
+python mPing_position.py --input Somatic.intersect --mrna Somatic.mRNA.intersect
+python mPing_intron.py --input Somatic.intersect
 python mPing_intergenic.py --input Somatic.mRNA.intersect
 
 
 echo "RIL"
 bedtools intersect -a ../mPing_gff/RIL.gff -b ../mPing_gff/MSU_r7.all.final.full.utr.gff3 -wao > RIL.intersect
-python mPing_position.py --input RIL.intersect
-python mPing_intron.py --input RIL.intersect
 bedtools closest -a ../mPing_gff/RIL.gff -b ../mPing_gff/MSU_r7.all.final.mRNA.gff -d > RIL.mRNA.intersect
+python mPing_position.py --input RIL.intersect --mrna RIL.mRNA.intersect
+python mPing_intron.py --input RIL.intersect
 python mPing_intergenic.py --input RIL.mRNA.intersect
 
 echo "Strains"
 bedtools intersect -a ../mPing_gff/Strains.gff -b ../mPing_gff/MSU_r7.all.final.full.utr.gff3 -wao > Strains.intersect
-python mPing_position.py --input Strains.intersect
-python mPing_intron.py --input Strains.intersect 
 bedtools closest -a ../mPing_gff/Strains.gff -b ../mPing_gff/MSU_r7.all.final.mRNA.gff -d > Strains.mRNA.intersect
+python mPing_position.py --input Strains.intersect --mrna Strains.mRNA.intersect
+python mPing_intron.py --input Strains.intersect 
 python mPing_intergenic.py --input Strains.mRNA.intersect 
 
 
 echo "Simulation, use summary not one"
 bedtools intersect -a ../mPing_gff/Simulate0001.gff -b ../mPing_gff/MSU_r7.all.final.full.utr.gff3 -wao > Simulation.intersect
-python mPing_position.py --input Simulation.intersect
-python mPing_intron.py --input Simulation.intersect
 bedtools closest -a ../mPing_gff/Simulate0001.gff -b ../mPing_gff/MSU_r7.all.final.mRNA.gff -d > Simulation.mRNA.intersect
+python mPing_position.py --input Simulation.intersect --mrna Simulation.mRNA.intersect
+python mPing_intron.py --input Simulation.intersect 
 python mPing_intergenic.py --input Simulation.mRNA.intersect
 
 echo "Landrace split, sofia version"

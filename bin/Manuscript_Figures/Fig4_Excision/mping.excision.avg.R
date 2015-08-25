@@ -13,7 +13,7 @@ y <- t[,2][1:14]
 #std <- append(std,0,0)
 x <- t[,1]
 
-xx <- barplot(y,beside=TRUE,ylab="Excisions (#RILs)", cex.lab=1.2, cex.names=1.2,cex.axis=1.2,border=FALSE,axes=FALSE, ylim=c(0,60),col="steelblue2")
+xx <- barplot(y,beside=TRUE,ylab="Excisions (#RILs)", cex.lab=1.2, cex.names=1.2,cex.axis=1.2,border=FALSE,axes=FALSE, ylim=c(0,80),col="steelblue2")
 
 error.bar(xx, y, std)
 
