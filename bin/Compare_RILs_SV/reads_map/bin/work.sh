@@ -64,3 +64,13 @@ python avg_interval.py --input mPing_boundary.linked_50Mb_debug2.table_clean.txt
 python avg_interval.py --input mPing_boundary.linked_50Mb_debug1.table_clean.txt > mPing_boundary.linked_50Mb_debug1.table_clean.sum
 cat avg_interval_test.R | R --slave
 
+echo "plot point view of excision and distance"
+python Sum_linked_mPing_statusV2.py --dir ../../../Compare_excision_transposase/bin/High_excision_csv_Ping --distance ../input/mPing_dist_RIL_AF0.1.50Mb.list.sorted --project mPing_boundary.linked_50Mb_debug2
+awk '$8<20 && $9<20 && $10<20' mPing_boundary.linked_50Mb_debug2.table_clean.txt > mPing_boundary.linked_50Mb_debug2.table_clean.rough_removed_early_insertion.txt
+cat mPing_boundary.linked_50Mb_debug2.table_clean.point_plot.R | R --slave
+#411 mping and 881 excision including early excision for this pipeline, compare details with former
+python Sum_excision_distance.py --dir ../../../Compare_excision_transposase/bin/High_excision_csv_Ping --distance ../input/mPing_dist_RIL_AF0.1.50Mb.list.sorted --project mPing_boundary.linked_50Mb_debug2
+cat mPing_boundary.linked_50Mb_debug2.table_clean.point_view.R | R --slave
+cat mPing_boundary.linked_50Mb_debug2.table_clean.proportion_accumulation.R | R --slave
+#ks test p-value=0.0001, difference between excision and control
+cat mPing_boundary.linked_50Mb_debug2.table_clean.proportion_accumulation.test.R | R --slave

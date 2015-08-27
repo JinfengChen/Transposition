@@ -6,7 +6,7 @@ import re
 import os
 import argparse
 from Bio import SeqIO
-sys.path.append('/rhome/cjinfeng/software/ProgramPython/lib')
+sys.path.append('/rhome/cjinfeng/BigData/software/ProgramPython/lib')
 from utility import gff_parser
 
 def usage():

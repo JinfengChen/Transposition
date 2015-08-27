@@ -51,7 +51,7 @@ def main():
         sys.exit(2)
    
     if not args.ref:
-        args.ref = '/rhome/cjinfeng/BigData/00.RD/RILs/Transpostion/bin/Compare_RILs_SV/reads_map/input/bwa_0.7/MSU_r7.Pseudo_mPing.fa'
+        args.ref = '/rhome/cjinfeng/BigData/00.RD/RILs/Transpostion/bin/Compare_RILs_SV/reads_map/input/bwa_0.7/MSU_r7.Pseudo_mPing_RILs.fa'
     fqs = glob.glob('%s/RIL*/*_1.fq' %(args.input))
     ofile = open('RIL_bwa.sh', 'w')
     for fq1 in sorted(fqs):

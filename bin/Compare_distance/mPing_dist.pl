@@ -37,11 +37,13 @@ while(<IN>){
 }
 close IN;
 
-#my $cutoff = 50000000;
-my $cutoff = 100000;
-open OUT1, ">mPing_dist2.txt" or die "$!";
+my $cutoff = 50000000;
+#my $cutoff = 100000;
+#open OUT1, ">mPing_dist2.txt" or die "$!";
 #open OUT2, ">mPing_dist2.50Mb.list" or die "$!";
-open OUT2, ">mPing_dist2.100kb.list" or die "$!";
+#open OUT2, ">mPing_dist2.100kb.list" or die "$!";
+open OUT1, ">mPing_dist_RIL_AF0.1.txt" or die "$!";
+open OUT2, ">mPing_dist_RIL_AF0.1.50Mb.list" or die "$!";
 foreach my $c (keys %hash){
     my @pos = sort {$a <=> $b} @{$hash{$c}};
     my $dist_first = $pos[1] - $pos[0];

@@ -98,7 +98,17 @@ def readcsv(infile):
                             data[unit[0]] = 'unknown'
     return data
 
-
+#RIL3,HEG4,unknown,clipped,covered,Excision,6,ABCEFG*
+def readcsv_excision(infile):
+    data = defaultdict(lambda : str())
+    with open (infile, 'r') as filehd:
+        for line in filehd:
+            line = line.rstrip()
+            if len(line) > 2 and line.startswith(r'RIL'): 
+                unit = re.split(r',',line)
+                if unit[1] == 'HEG4':
+                    data[unit[0]] = unit[5]
+    return data
 
 def summary(directory, mpings, prefix):
     ofile1 = open ('%s.status.list' %(prefix), 'w')
@@ -106,27 +116,30 @@ def summary(directory, mpings, prefix):
     ofile3 = open ('%s.table_clean.txt' %(prefix), 'w')
     for pair in sorted(mpings.keys()):
         #print '%s, %s, %s, %s, %s, %s' %(pair, mpings[pair][0], mpings[pair][1], mpings[pair][2], mpings[pair][3], mpings[pair][4])
-        mping1_status = readcsv('%s/%s.matrix.csv' %(directory, mpings[pair][0]))
-        mping2_status = readcsv('%s/%s.matrix.csv' %(directory, mpings[pair][1]))
+        mping1_status = readcsv_excision('%s/%s.matrix.csv' %(directory, mpings[pair][0]))
+        mping2_status = readcsv_excision('%s/%s.matrix.csv' %(directory, mpings[pair][1]))
         #effect_ril, unknown, ++, +-, -+, --
         status = [0, 0, 0, 0, 0, 0]
         print >> ofile1, '%s, %s, %s, %s, %s, %s' %(pair, mpings[pair][0], mpings[pair][1], mpings[pair][2], mpings[pair][3], mpings[pair][4])
         for ril in mping1_status.keys():
             ril_status = ''
-            if mping1_status[ril] != 'unknown' and mping2_status[ril] != 'unknown':
+            if mping1_status[ril] != 'Check' and mping2_status[ril] != 'Check':
                 status[0] += 1
-                if mping1_status[ril] == 'covered' and mping2_status[ril] == 'covered':
+                if mping1_status[ril] == 'Insertion' and mping2_status[ril] == 'Insertion':
                     status[2] += 1
                     ril_status = '++'
-                elif mping1_status[ril] == 'covered' and mping2_status[ril] == 'clipped':
+                elif mping1_status[ril] != 'Excision' and mping2_status[ril] == 'Excision':
                     status[3] += 1
                     ril_status = '+-'
-                elif mping1_status[ril] == 'clipped' and mping2_status[ril] == 'covered':
+                elif mping1_status[ril] == 'Excision' and mping2_status[ril] != 'Excision':
                     status[4] += 1
                     ril_status = '-+'
-                elif mping1_status[ril] == 'clipped' and mping2_status[ril] == 'clipped':
+                elif mping1_status[ril] == 'Excision' and mping2_status[ril] == 'Excision':
                     status[5] += 1
                     ril_status = '--'
+                else:
+                    status[1] += 1
+                    ril_status = 'unknown'
             else: 
                 status[1] += 1
                 ril_status = 'unknown'

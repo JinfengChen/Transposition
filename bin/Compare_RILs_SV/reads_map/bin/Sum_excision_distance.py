@@ -98,52 +98,67 @@ def readcsv(infile):
                             data[unit[0]] = 'unknown'
     return data
 
-
+#RIL3,HEG4,unknown,clipped,covered,Excision,6,ABCEFG*
+def readcsv_excision(infile):
+    data = defaultdict(lambda : str())
+    with open (infile, 'r') as filehd:
+        for line in filehd:
+            line = line.rstrip()
+            if len(line) > 2 and line.startswith(r'RIL'): 
+                unit = re.split(r',',line)
+                if unit[1] == 'HEG4':
+                    data[unit[0]] = unit[5]
+    return data
 
 def summary(directory, mpings, prefix):
-    ofile1 = open ('%s.status.list' %(prefix), 'w')
-    ofile2 = open ('%s.table_other.txt' %(prefix), 'w')
-    ofile3 = open ('%s.table_clean.txt' %(prefix), 'w')
-    for pair in sorted(mpings.keys()):
+    ofile = open ('%s.excision_distance.list' %(prefix), 'w')
+    ofile1 = open ('%s.distance_accumulation_excision.list' %(prefix), 'w')
+    ofile2 = open ('%s.mping_excision.list' %(prefix), 'w')
+    #ofile3 = open ('%s.distance_accumulation_excision.kstest' %(prefix), 'w')0
+    print >> ofile1, 'Distance\tExcision\tAccumulated_Excision\tFraction_Accumulated_Excision\ttAccumulated_Control\tFraction_Accumulated_Control\tFraction_Control'
+    print >> ofile2, 'mPing\t#Excision'
+    
+    distance_int = 10000
+    distance_excision = defaultdict(lambda : int())
+    distance_control  = defaultdict(lambda : int())
+    mping_num_control = 0
+    excision_num_control = 0
+    for mping in sorted(mpings.keys()):
         #print '%s, %s, %s, %s, %s, %s' %(pair, mpings[pair][0], mpings[pair][1], mpings[pair][2], mpings[pair][3], mpings[pair][4])
-        mping1_status = readcsv('%s/%s.matrix.csv' %(directory, mpings[pair][0]))
-        mping2_status = readcsv('%s/%s.matrix.csv' %(directory, mpings[pair][1]))
-        #effect_ril, unknown, ++, +-, -+, --
-        status = [0, 0, 0, 0, 0, 0]
-        print >> ofile1, '%s, %s, %s, %s, %s, %s' %(pair, mpings[pair][0], mpings[pair][1], mpings[pair][2], mpings[pair][3], mpings[pair][4])
-        for ril in mping1_status.keys():
-            ril_status = ''
-            if mping1_status[ril] != 'unknown' and mping2_status[ril] != 'unknown':
-                status[0] += 1
-                if mping1_status[ril] == 'covered' and mping2_status[ril] == 'covered':
-                    status[2] += 1
-                    ril_status = '++'
-                elif mping1_status[ril] == 'covered' and mping2_status[ril] == 'clipped':
-                    status[3] += 1
-                    ril_status = '+-'
-                elif mping1_status[ril] == 'clipped' and mping2_status[ril] == 'covered':
-                    status[4] += 1
-                    ril_status = '-+'
-                elif mping1_status[ril] == 'clipped' and mping2_status[ril] == 'clipped':
-                    status[5] += 1
-                    ril_status = '--'
-            else: 
-                status[1] += 1
-                ril_status = 'unknown'
-            print >> ofile1, '%s\t%s' %(ril, ril_status)
-        #print >> ofile2, '%s\t%s\t%s\t%s\t%s' %(pair, mpings[pair][2], mpings[pair][3], mpings[pair][4], '\t'.join(map(str, status)))
-        if status[0] > 0:
-            if float(status[2])/float(status[0]) > 0.1:
-                print >> ofile3, '%s\t%s\t%s\t%s\t%s' %(pair, mpings[pair][2], mpings[pair][3], mpings[pair][4], '\t'.join(map(str, status)))
-        else:
-            print >> ofile2, '%s\t%s\t%s\t%s\t%s' %(pair, mpings[pair][2], mpings[pair][3], mpings[pair][4], '\t'.join(map(str, status)))
+        #print mping
+        #mping_status = readcsv('%s/%s.matrix.csv' %(directory, mping))
+        if not os.path.isfile('%s/%s.matrix.csv' %(directory, mping)):
+            continue
+        mping_status = readcsv_excision('%s/%s.matrix.csv' %(directory, mping))
+        excision = 0 
+        for ril in mping_status.keys():
+            #if mping_status[ril] == 'clipped':
+            if mping_status[ril] == 'Excision':
+                excision += 1
+        print >> ofile2, '%s\t%s' %(mping, excision)
+        if excision < 20:
+            print >> ofile, '%s\t%s\t%s' %(mping, mpings[mping], excision)
+            index = int(float(mpings[mping])/distance_int)
+            distance_excision[index] += excision
+            distance_control[index] += 1
+            mping_num_control += 1
+    excision_accum = 0
+    excision_control_accum = 0
+    for i in range(0, max(distance_excision.keys())):
+        excision_n = distance_excision[i] if distance_excision.has_key(i) else 0
+        excision_accum = excision_accum if excision_n == 0 else excision_accum + excision_n
+        #control number is the mPing * average excison per mPing 
+        excision_control = distance_control[i]*(float(sum(distance_excision.values()))/mping_num_control) #mping number * (total exicison/total mping)
+        excision_control_accum += excision_control
+        print >> ofile1, '%s\t%s\t%s\t%s\t%s\t%s\t%s' %((i+1)*distance_int, excision_n, excision_accum, float(excision_accum)/sum(distance_excision.values()), excision_control, excision_control_accum, float(excision_control_accum)/sum(distance_excision.values()))
+    ofile.close()
     ofile1.close()
     ofile2.close()
-    ofile3.close()
+    #ofile3.close() 
 
 #Chr3.29404858   Chr3.29404901   43      -       +
 def readtable(infile):
-    data = defaultdict(str)
+    data = defaultdict(lambda : int())
     pair = defaultdict(lambda : list())
     with open (infile, 'r') as filehd:
         for line in filehd:
@@ -160,12 +175,20 @@ def readtable(infile):
                 #    print 'present in more than 1 pairs: %s' %(mping1_idx)
                 #if data.has_key(mping1_idx):
                 #    print 'present in more than 1 pairs: %s' %(mping2_idx)
-                data[mping1_idx] = 1
-                data[mping2_idx] = 1
-                index       = '%s:%s' %(unit[0], unit[1])
-                pair[index] = [mping1_idx, mping2_idx, unit[2], unit[3], unit[4]]
+                if data.has_key(mping1_idx):
+                    data[mping1_idx] = int(unit[2]) if int(unit[2]) < data[mping1_idx] else data[mping1_idx]
+                else:
+                    data[mping1_idx] = int(unit[2])
+                if data.has_key(mping2_idx):
+                    data[mping2_idx] = int(unit[2]) if int(unit[2]) < data[mping2_idx] else data[mping2_idx]
+                else:
+                    data[mping2_idx] = int(unit[2])
+                #data[mping1_idx] = 1
+                #data[mping2_idx] = 1
+                #index       = '%s:%s' %(unit[0], unit[1])
+                #pair[index] = [mping1_idx, mping2_idx, unit[2], unit[3], unit[4]]
     #print 'linked mPing: %s' %(str(len(data.keys())))
-    return pair
+    return data
 
 
 def main():
