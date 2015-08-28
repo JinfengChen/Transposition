@@ -131,6 +131,41 @@ def convert_MAP(infile):
     #    print t
     return data
 
+#Convert SNP map
+#""      "GN1"   "GN10"  "GN100" "GN101" "GN102" "GN103" "GN104" "GN105" "GN106" 
+#"0100021547A"   NA      NA      NA      0       0       0       NA      NA      
+#"0100031071A"   NA      1       0       0       0       0       1       1       
+#"0100031478C"   1       1       0       0       0       0       NA      1       
+
+def convert_MAP_SNP(infile):
+    rils = []
+    data = defaultdict(lambda : defaultdict(lambda: defaultdict(lambda: str)))
+    with open (infile, 'r') as filehd:
+        for line in filehd:
+            line = line.rstrip()
+            line = line.replace('"', '')
+            if line[0:1].isdigit():
+                unit = re.split(r'\t',line)
+                #print '%s\t%s\t%s' %(chrs, int(unit[0][2:]), str(chr_start[chrs]))
+                chrs = 'Chr%s' %(str(int(unit[0][0:2])))
+                unit[0] = unit[0][:-1] #remove reference base
+                pos = int(unit[0][2:])
+                for i in range(1,len(unit)):
+                    #print i, rils[i], chrs, pos
+                    ril = rils[i]
+                    data[ril][chrs][pos] = unit[i]
+            else:
+                unit = re.split(r'\t',line)
+                unit[0] = 'Position'
+                #print unit[0], unit[1], unit[2]
+                rils.extend(unit)
+   
+    #for t in sorted(data['GN204']['Chr10'].keys(), key=int):
+    #    print t
+    return data
+
+
+
 def binarySearch(data, val):
     highIndex = len(data)-1
     lowIndex = 0
@@ -173,6 +208,62 @@ def findbin(start, binmap, ril, chrs):
     #print start, array[index[0]], array[index[1]]
     return array[index[1]]
 
+#[1,0,0,0,0]
+#get genotype of five snp, return genotype and frequency
+def snp_type(snp_index, snpmap, ril, chrs):
+    data = defaultdict(lambda : int())
+    for i in snp_index:
+        s = snpmap[ril][chrs][i]
+        if not s == 'NA':
+            data[s] += 1
+    genotypes = sorted(data, key=data.get, reverse=True)
+    if len(genotypes) >= 1:
+        return [genotypes[0], float(genotypes[0])/sum(data.values())]
+    else:
+        return [3, 0]
+
+#def findbin_SNP(start, binmap, snpmap, ril, chrs):
+#    print 'start: %s' %(start)
+#    a = [0, 'NA']
+#    return a
+
+def findbin_SNP(start, binmap, snpmap, ril, chrs):
+    array = []
+    array.extend(sorted(binmap[ril][chrs].keys(), key=int))
+    array_snp = []
+    array_snp.extend(sorted(snpmap[ril][chrs].keys(), key=int))
+    #mping after last bin on chromosome, return 0 mean genotype unknown
+    if int(start) > int(array[-1]):
+        return [0, 'NA']
+    index = binarySearch(array, int(start))
+    index_snp = binarySearch(array, int(start))
+    
+
+    #check five flanking SNP if consistent
+    pos_gt = []
+    backward_snp_idx = array_snp[(index_snp[0]-4):(index_snp[0]+1)]
+    forward_snp_idx  = array_snp[index_snp[1]:(index_snp[0]+4)]
+    gt_1 = snp_type(backward_snp_idx, snpmap, ril, chrs)
+    gt_2 = snp_type(forward_snp_idx, snpmap, ril, chrs)
+
+
+    #block genotype unknown, return
+    #print 't:1 %s' %(index[1])
+    #print 't: %s' %(binmap[ril][chrs][array[index[1]]])
+    if str(binmap[ril][chrs][array[index[1]]]) == 'NA':
+        pos_gt.extend([array[index[1]], 'NA'])
+    else:
+        #block genotype known, use snp to comfirm
+        if gt_1[0] == gt_2[0] and str(gt_1[0]) == str(binmap[ril][chrs][array[index[1]]]):
+            #snp consistent with genotype block
+            pos_gt.extend([array[index[1]], gt_1[0]])
+        else:
+            #snp inconsistent with genotype block
+            pos_gt.extend([array[index[1]], 'NA'])
+    return pos_gt
+
+
+
 def genotyping(ril, mping, binmap):
     ril = 'GN%s' %(ril)
     p = re.compile(r'(\w+):(\d+)\-(\d+)')
@@ -195,6 +286,30 @@ def genotyping(ril, mping, binmap):
     else:
         genotype = '3'
     return genotype
+
+def genotyping_SNP(ril, mping, binmap, snpmap):
+    ril = 'GN%s' %(ril)
+    p = re.compile(r'(\w+):(\d+)\-(\d+)')
+    m = p.search(mping)
+    chrs = ''
+    start = 0
+    end   = 0
+    if m:
+        chrs  = m.groups(0)[0]
+        start = m.groups(0)[1]
+        end   = m.groups(0)[2]
+    #print ril, chrs, start, len(binmap[ril][chrs].keys())
+    pos, genotype = findbin_SNP(start, binmap, snpmap, ril, chrs)
+    #print 'find bin', ril, chrs, start, pos
+    #pos is 0 when genotype of bin that overlap with mping is unknown
+    #we should use raw bin not filled or uniq bin here and check if the genotype is NA.
+    #genotype = binmap[ril][chrs][pos] if pos > 0 else '3'
+    #print 'pos: %s, genotype: %s' %(pos, genotype)
+    if pos > 0 and genotype != 'NA':
+        return genotype
+    else:
+        genotype = '3'
+
 
 def validmap(binmap):
     last = 0

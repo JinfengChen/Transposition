@@ -8,7 +8,7 @@ import argparse
 from Bio import SeqIO
 import subprocess
 sys.path.append('%s/lib' %(os.getcwd()))
-from excision import bamcheck, bamcheck_simple, convert_MAP, genotyping
+from excision import bamcheck, bamcheck_simple, convert_MAP, genotyping, convert_MAP_SNP, genotyping_SNP
 import glob
 
 def usage():
@@ -74,9 +74,11 @@ def decode(flag):
         return 'unknown'
 
 def decode_gt(gt):
-    if int(gt) == 0:
+    if gt == 'NA':
+        return 'NA'
+    elif str(gt) == '0':
         return 'NB'
-    elif int(gt) == 1:
+    elif str(gt) == '1':
         return 'HEG4'
     else:
         return 'NA'
@@ -112,6 +114,7 @@ def main():
     parser.add_argument('--gff_ref')
     parser.add_argument('--gff_pseudo')
     parser.add_argument('--bin_map')
+    parser.add_argument('--snp_map') 
     parser.add_argument('--project')
     parser.add_argument('-v', dest='verbose', action='store_true')
     args = parser.parse_args()
@@ -133,6 +136,8 @@ def main():
         args.bam_pseudo = '../input/RILs_ALL_unmapped_mping_bam'
     if not args.bin_map:
         args.bin_map = '../input/MPR.geno.bin'
+    if not args.snp_map:
+        args.snp_map = '../input/MPR.gene.data'
 
     #we use mping gff from pseudogenome as key to project to everything 
     mping2ID_0  = defaultdict(lambda : str()) #ID_0 is the mping id from original call in HEG4, Chr1.1132977
@@ -140,6 +145,7 @@ def main():
     
     #bin map and snp genotype
     binmap = convert_MAP(args.bin_map)
+    snpmap = convert_MAP_SNP(args.bin_map)
 
     #go through RILs, for each ril determine the status of each mPing
     bamcheck_file_pseudo = '%s.bamcheck_pseudo.txt' %(args.project)
@@ -158,7 +164,7 @@ def main():
         if os.path.isfile(bam_pseudo):
             for mping in sorted(mping2ID_0.keys()):
                 #genotype: 0 ref, 1 non_ref, 3 unknown
-                genotype = genotyping(ril, mping, binmap)
+                genotype = genotyping_SNP(ril, mping, binmap, snpmap)
                 l_flag, r_flag = bamcheck_ref(bam_pseudo, mping, bamcheck_file_pseudo, ril)
                 ref_flag       = bamcheck(bam_ref, mping2ID_0[mping], bamcheck_file_ref, ril) 
                 #print '%s\t%s\t%s\t%s' %(ril, mping, l_flag, r_flag)
