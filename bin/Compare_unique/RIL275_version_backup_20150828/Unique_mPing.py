@@ -12,7 +12,6 @@ def usage():
     message='''
 python Unique_mPing.py --input RIL275_RelocaTEi.CombinedGFF.characterized.gff
 
-Generate number of unique mPing list for each RILs
     '''
     print message
 
@@ -35,29 +34,20 @@ def summary_unique(unique_mping_d, ping_code, ping_number_sum, ping_single_sum):
                 ril_id = re.sub(r'RIL', '', unit[2])
                 data[ril_id] = [unit[0], unit[1]]
     sum_ping_number = defaultdict(lambda : list())
-    sum_ping_number_m = defaultdict(lambda : list())
     sum_ping_single = defaultdict(lambda : list())
-    sum_ping_single_m = defaultdict(lambda : list())
     for ril in unique_mping_d.keys():
         if not data[ril][0] == 'NA':
             sum_ping_number[data[ril][0]].append(unique_mping_d[ril])
-            sum_ping_number_m[data[ril][0]].append('RIL%s:%s' %(ril, unique_mping_d[ril]))
         if len(data[ril][1]) == 1:
             sum_ping_single[data[ril][1]].append(unique_mping_d[ril])
-            sum_ping_single_m[data[ril][1]].append('RIL%s:%s' %(ril, unique_mping_d[ril]))
     ofile0 = open(ping_number_sum, 'w')
-    print >> ofile0, 'Class\t#Ping\t#Unique_mPing_mean\t#Unique_mPing_std\tSample_Size\tValues'
     ofile1 = open(ping_single_sum, 'w')
-    print >> ofile1, 'Class\t#Ping\t#Unique_mPing_mean\t#Unique_mPing_std\tSample_Size\tValues'
     for n_ping in sorted(sum_ping_number.keys(), key = int):
         values = map(int, sum_ping_number[n_ping])
-        #ril_mping = ','.join(sum_ping_number_m[n_ping])
-        print >> ofile0, n_ping, np.mean(values), np.std(values), len(values), ','.join(map(str, sum_ping_number[n_ping])), ','.join(sum_ping_number_m[n_ping])
-
+        print >> ofile0, n_ping, np.mean(values), np.std(values)
     for s_ping in sorted(sum_ping_single.keys()):
         values = map(int, sum_ping_single[s_ping])
-        #ril_mping = ','.join(sum_ping_single_m[s_ping])
-        print >> ofile1, s_ping, np.mean(values), np.std(values), len(values), ','.join(map(str, sum_ping_single[s_ping])), ','.join(sum_ping_single_m[s_ping])
+        print >> ofile1, s_ping, np.mean(values), np.std(values)
     ofile0.close()
     ofile1.close()
     return data
@@ -88,7 +78,7 @@ def parse_overlap(infile):
             line = line.rstrip()
             if len(line) > 2 and not line.startswith(r'#'):
                 unit = re.split(r'\t', line)
-                if not unit[1] == unit[10] and unit[3] == unit[12] and unit[4] == unit[13]:
+                if not unit[1] == unit[10]:
                     index       = '%s:%s_%s_%s' %(unit[1], unit[0], unit[3], unit[4])
                     data[index] = 1
     return data
@@ -119,18 +109,18 @@ def main():
         args.code      = 'RIL275_RelocaTE.sofia.ping_code.table'
 
     overlap_ref     = '%s.overlap_ref' %(os.path.splitext(args.input)[0])
-    bed_overlap_ref = 'bedtools intersect -wb -f 1 -a %s -b %s > %s' %(args.input, args.reference, overlap_ref)
+    bed_overlap_ref = 'bedtools window -w %s -a %s -b %s > %s' %(args.window, args.input, args.reference, overlap_ref)
     if not os.path.isfile(overlap_ref):
         os.system(bed_overlap_ref)
     overlap_ril     = '%s.overlap_ril' %(os.path.splitext(args.input)[0])
-    bed_overlap_ril = 'bedtools intersect -wb -f 1 -a %s -b %s > %s' %(args.input, args.input, overlap_ril)
+    bed_overlap_ril = 'bedtools window -w %s -a %s -b %s > %s' %(args.window, args.input, args.input, overlap_ril)
     if not os.path.isfile(overlap_ril):
         os.system(bed_overlap_ril)
     overlap_ref_d   = parse_overlap(overlap_ref)
     overlap_ril_d   = parse_overlap(overlap_ril)
     unique_mping_d  = unique_mping(args.input, overlap_ref_d, overlap_ril_d, args.output)
-    ping_number_sum = '%s.ping_number.unique.summary' %(os.path.splitext(args.input)[0])
-    ping_single_sum = '%s.ping_single.unique.summary' %(os.path.splitext(args.input)[0])
+    ping_number_sum = '%s.ping_number.summary' %(os.path.splitext(args.input)[0])
+    ping_single_sum = '%s.ping_single.summary' %(os.path.splitext(args.input)[0])
     summary_unique(unique_mping_d, args.code, ping_number_sum, ping_single_sum)
 
 if __name__ == '__main__':

@@ -54,7 +54,7 @@ def seq_depth(infile):
 
 #Chr1    not.give        transposable_element_attribute  2129220 2129222 +       .       .       
 #ID=Chr1.2129222.spanners;avg_flankers=1;spanners=0;type=homozygous;TE=mping;TSD=TAA
-def parse_class_gff(infile):
+def parse_class_gff(infile, ping):
    total = 0
    hom   = 0
    het   = 0
@@ -69,7 +69,10 @@ def parse_class_gff(infile):
                 unit = re.split(r'\t', line)
                 anno = re.split(r';', unit[8])
                 tsd  = re.sub(r'TSD=', '', anno[-1])
+                mping = '%s.%s' %(unit[0], unit[3])
                 if not len(tsd) == 3:
+                    continue
+                if ping.has_key(mping):
                     continue
                 flag = re.sub(r'type=', '', anno[3])
                 total += 1
@@ -83,7 +86,7 @@ def parse_class_gff(infile):
 
 #Chr1	not.give	RelocaTE_i	2129220	2129222	.	.	.	
 #ID=repeat_Chr1_2129220_2129222;TSD=TAA;Right_junction_reads:1;Left_junction_reads:1;Right_support_reads:0;Left_support_reads:0;
-def parse_gff(infile):
+def parse_gff(infile, ping):
     both_end = 0
     sing_end = 0
     with open (infile, 'r') as filehd:
@@ -92,15 +95,31 @@ def parse_gff(infile):
             if len(line) > 2:
                 unit = re.split(r'\t', line)
                 anno = re.split(r';', unit[8])
+                tsd  = re.sub(r'TSD=', '', anno[1])
+                mping = '%s.%s' %(unit[0], unit[3])
                 rj   = re.sub(r'Right_junction_reads:', '', anno[2])
                 lj   = re.sub(r'Left_junction_reads:', '', anno[3])
                 rs   = re.sub(r'Right_support_reads:', '', anno[4])
                 ls   = re.sub(r'Left_support_reads:', '', anno[5])
-                if int(lj) + int(ls) > 0 and int(rj) + int(rs) > 0:
+                if ping.has_key(mping):
+                    continue
+                if int(lj) + int(ls) > 0 and int(rj) + int(rs) > 0 and len(tsd) == 3:
                     both_end += 1
                 else:
                     sing_end += 1
     return [both_end, sing_end]
+
+#Chr1    not.give        transposable_element_attribute  4220010 4220012
+def read_gff(infile):
+    data = defaultdict(lambda : int())
+    with open (infile, 'r') as filehd:
+        for line in filehd:
+            line = line.rstrip()
+            if len(line) > 2: 
+                unit = re.split(r'\t',line)
+                ping = '%s.%s' %(unit[0], unit[3])
+                data[ping] = 1
+    return data
 
 
 def main():
@@ -114,7 +133,7 @@ def main():
         usage()
         sys.exit(2)
    
-
+    ping = read_gff('Compare_unique/HEG4.ALL.ping.gff')
     depth  = seq_depth('RIL.bam.unique.stat')
     size   = lib_size('RIL275.InsertSize.list') 
     #RIL275_RelocaTEi/RelocaTEi_GN1/repeat/results/ALL.all_nonref_insert.gff 
@@ -128,8 +147,8 @@ def main():
         #gff  = '%s/%s.insertion.refined.bp.summary.gff' %(d, ril)
         gff       = '%s/repeat/results/ALL.all_nonref_insert.gff' %(d)
         gff_class = '%s/repeat/results/ALL.all_nonref_insert.characTErized.gff' %(d)
-        confident, single_end = parse_gff(gff)
-        n_tsd, hom, het, som  = parse_class_gff(gff_class)
+        confident, single_end = parse_gff(gff, ping)
+        n_tsd, hom, het, som  = parse_class_gff(gff_class, ping)
         data[ril_id] = [confident, single_end, n_tsd, hom, het, som]
 
     count = 0

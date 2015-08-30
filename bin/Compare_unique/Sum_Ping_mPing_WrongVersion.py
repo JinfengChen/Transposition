@@ -24,9 +24,9 @@ def fasta_id(fastafile):
 #Pings	Ping_Code	RIL
 #0	NA	RIL129
 #1	C	RIL230
-def summary_unique(ping_code, unique, ping_number_sum, ping_single_sum):
+def summary_unique(mping_table, ping_code, unique, ping_number_sum, ping_single_sum):
     data = defaultdict(lambda : list())
-    #ril_mping =  read_mping_table(mping_table)
+    ril_mping =  read_mping_table(mping_table)
     ril_unique=  read_unique_table(unique)
     with open (ping_code, 'r') as filehd:
         for line in filehd:
@@ -44,12 +44,12 @@ def summary_unique(ping_code, unique, ping_number_sum, ping_single_sum):
     for ril in ril_unique.keys():
         if not data[ril][0] == 'NA':
             sum_ping_number_hom[data[ril][0]].append(ril_unique[ril][0])
-            sum_ping_number_som[data[ril][0]].append(ril_unique[ril][1])
-            sum_ping_number_m[data[ril][0]].append('%s:%s:%s' %(ril, ril_unique[ril][0], ril_unique[ril][1]))
+            sum_ping_number_som[data[ril][0]].append(ril_mping[ril][1])
+            sum_ping_number_m[data[ril][0]].append('%s:%s:%s' %(ril, ril_unique[ril][0], ril_mping[ril][1]))
         if len(data[ril][1]) == 1:
             sum_ping_single_hom[data[ril][1]].append(ril_unique[ril][0])
-            sum_ping_single_som[data[ril][1]].append(ril_unique[ril][1])
-            sum_ping_single_m[data[ril][1]].append('%s:%s:%s' %(ril, ril_unique[ril][0], ril_unique[ril][1]))
+            sum_ping_single_som[data[ril][1]].append(ril_mping[ril][1])
+            sum_ping_single_m[data[ril][1]].append('%s:%s:%s' %(ril, ril_unique[ril][0], ril_mping[ril][1]))
     ofile0 = open(ping_number_sum, 'w')
     print >> ofile0, '#Ping\tUnique_mPing_hom_mean\tUnique_mPing_hom_std\tUnique_mPing_het_mean\tUnique_mPing_het_std\tUnique_mPing_hom_list\tUnique_mPing_het_list\tUnique_mPing_RILs'
     ofile1 = open(ping_single_sum, 'w')
@@ -94,22 +94,23 @@ def read_unique_table(infile):
             if len(line) > 2 and not line.startswith(r'Sample'):
                 unit  = re.split(r'\t', line)
                 #print unit[10], unit[11], unit[12]
-                data[unit[0]] = [unit[5], str(int(unit[6]) + int(unit[7]))]
+                #data[unit[0]] = [unit[5], str(int(unit[6]) + int(unit[7]))]
+                data[unit[0]] = [unit[4]]
                 #print data[unit[0]]
     return data
 
 
 def main():
     parser = argparse.ArgumentParser()
-    #parser.add_argument('-t', '--table')
+    parser.add_argument('-t', '--table')
     parser.add_argument('-c', '--code')
     parser.add_argument('-o', '--output')
 
     parser.add_argument('-v', dest='verbose', action='store_true')
     args = parser.parse_args()
 
-    #if not args.table:
-    #    args.table     = '../RIL275_RelocaTEi.summary_clean.table'
+    if not args.table:
+        args.table     = '../RIL275_RelocaTEi.summary_clean.table'
     if not args.code:
         args.code      = 'RIL275_RelocaTE.sofia.ping_code.table'
 
@@ -120,7 +121,7 @@ def main():
     unique = '%s.mping.shared_unique_table.txt' %(prefix)
     ping_number_sum = '%s.ping_number.summary' %(prefix)
     ping_single_sum = '%s.ping_single.summary' %(prefix)
-    summary_unique(args.code, unique, ping_number_sum, ping_single_sum)
+    summary_unique(args.table, args.code, unique, ping_number_sum, ping_single_sum)
 
 if __name__ == '__main__':
     main()

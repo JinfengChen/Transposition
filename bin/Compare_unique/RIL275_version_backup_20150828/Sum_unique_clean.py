@@ -10,10 +10,7 @@ from Bio import SeqIO
 def usage():
     test="name"
     message='''
-python Sum_unique.py --input RIL275_RelocaTEi.CombinedGFF.characterized.unique_mPing.gff
-
-get list of unique mPing number for each RILs, generate mping frquency for shared mPing in RILs, can check parental mPing, shared in RILs
- 
+python Sum_unique.py --input RIL275_RelocaTEi.CombinedGFF.characterized.unique_mPing.gff 
     '''
     print message
 
@@ -111,31 +108,6 @@ def readtable(infile):
                 data[ril] += 1
     return data
 
-##get class for each ril from gff
-#Chr1    RIL231_0        transposable_element_attribute  36023407        36023409
-def get_ril_class(infile):
-    data = defaultdict(lambda : defaultdict(lambda : int()))
-    r1 = re.compile(r'type=hom')
-    r2 = re.compile(r'type=het')
-    r3 = re.compile(r'type=som')
-    with open (infile, 'r') as filehd:
-        for line in filehd: 
-            line = line.rstrip()
-            if len(line) > 2 and not line.startswith('#'):
-                unit = re.split(r'\t',line)
-                ril  = re.split(r'_',unit[1])[0]
-                ril  = re.sub(r'RIL', r'', ril)
-                if r1.search(line):
-                    data[ril][0] += 1
-                    data[ril][3] += 1
-                elif r2.search(line):
-                    data[ril][1] += 1
-                    data[ril][3] += 1
-                elif r3.search(line):
-                    data[ril][2] += 1
-                    data[ril][3] += 1
-    return data
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -158,8 +130,8 @@ def main():
 
     r = re.compile(r'(\w+):(\d+)-(\d+)')
     ##mPing_allele_frequency
-    ofile = open('%s.shared_mping.ril.frequency' %(prefix), 'w') 
-    ofile1 = open('%s.shared_mping.ril.list' %(prefix), 'w')
+    ofile = open('%s.mping.ril.frequency' %(prefix), 'w') 
+    ofile1 = open('%s.mping.ril.list' %(prefix), 'w')
     for mping in mping_ovlp_rils.keys():
         m = r.search(mping)
         chro, start, end = ['', 0, 0]
@@ -193,19 +165,15 @@ def main():
  
     #unique 
     unique_mping = readtable(args.input)
-    unique_mping_class = get_ril_class(args.input)
     #output table
     ofile = open('%s.mping.shared_unique_table.txt' %(prefix), 'w')
-    print >> ofile, 'Sample\tShared_HEG4\tShared_RILs\tShared\tUnique\tUnique_hom\tUnique_het\tUnique_som'
+    print >> ofile, 'Sample\tShared_HEG4\tShared_RILs\tShared\tUnique'
     for ril in sorted(heg4_mping_count.keys(), key=int):
         shared_heg4 = heg4_mping_count[ril]
         shared_rils = ril_mping_count[ril]
         shared      = int(shared_heg4) + int(shared_rils)
         unique      = unique_mping[ril]
-        unique_hom  = unique_mping_class[ril][0]
-        unique_het  = unique_mping_class[ril][1]
-        unique_som  = unique_mping_class[ril][2]
-        print >> ofile, 'RIL%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s' %(ril, shared_heg4, shared_rils, shared, unique, unique_hom, unique_het, unique_som)
+        print >> ofile, 'RIL%s\t%s\t%s\t%s\t%s' %(ril, shared_heg4, shared_rils, shared, unique)
     ofile.close()
 
     print 'Sample\tUnique_mPing'

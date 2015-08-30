@@ -10,9 +10,8 @@ from Bio import SeqIO
 def usage():
     test="name"
     message='''
-python Sum_class_clean.py --input RIL275_RelocaTEi.CombinedGFF.characterized.clean.unique_mPing.gff
+python CircosConf.py --input circos.config --output pipe.conf
 
-classify mPing into parental, shared in ril, or unique and then classify into hom, het, som
     '''
     print message
 
@@ -67,8 +66,8 @@ def main():
         sys.exit(2)
 
     prefix = os.path.splitext(os.path.splitext(args.input)[0])[0]
-    os.system('bedtools intersect -a %s.gff -b HEG4.ALL.mping.non-ref.AF0.1.gff > %s.shared_parental.gff' %(prefix, prefix))
-    os.system('bedtools intersect -a %s.gff -b HEG4.ALL.mping.non-ref.AF0.1.gff -v > %s.nonparental.gff' %(prefix, prefix))
+    os.system('bedtools intersect -a %s.gff -b HEG4.ALL.mping.non-ref.gff > %s.shared_parental.gff' %(prefix, prefix))
+    os.system('bedtools intersect -a %s.gff -b HEG4.ALL.mping.non-ref.gff -v > %s.nonparental.gff' %(prefix, prefix))
     os.system('bedtools intersect -a %s.nonparental.gff -b %s.unique_mPing.gff -v > %s.shared_nonparental.gff' %(prefix, prefix, prefix))
  
     unique_class = get_class(args.input)

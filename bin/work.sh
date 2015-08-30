@@ -39,3 +39,6 @@ python RunRelocaTE_CombinedGFF.py --input RIL275_RelocaTE
 echo "add unique mping"
 python MergeTable.py --table1 Compare_fig/RIL275_RelocaTEi.summary.table --table2 RIL275_RelocaTE.sofia.unique.table2 > Compare_fig/RIL275_RelocaTEi_unique.summary.table
 
+echo "update to 230 core, blackout problem RILs"
+python BlackOut_230core.py --input Bam.Core.blacklist
+

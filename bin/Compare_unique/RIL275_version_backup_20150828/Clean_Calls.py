@@ -22,19 +22,19 @@ def fasta_id(fastafile):
         fastaid[record.id] = 1
     return fastaid
 
-#Chr1    not.give        transposable_element_attribute  4220010 4220012
-def read_gff(infile):
-    data = defaultdict(lambda : int())
+
+def readtable(infile):
+    data = defaultdict(str)
     with open (infile, 'r') as filehd:
         for line in filehd:
             line = line.rstrip()
             if len(line) > 2: 
                 unit = re.split(r'\t',line)
-                ping = '%s.%s' %(unit[0], unit[3])
-                data[ping] = 1
+                if not data.has_key(unit[0]):
+                    data[unit[0]] = unit[1]
     return data
 
-def gff_parse(infile, output, ping):
+def gff_parse(infile, output):
     ofile = open(output, 'w')
     data = defaultdict(lambda : list())
     with open (infile, 'r') as filehd:
@@ -54,8 +54,7 @@ def gff_parse(infile, output, ping):
                         #print 'yes'
                         idx, value = re.split(r'\=', attr)
                         temp[idx] = value
-                mping = '%s.%s' %(unit[0], unit[3])
-                if len(temp['TSD']) == 3 and not ping.has_key(mping):
+                if len(temp['TSD']) == 3:
                     print >> ofile, line
                 #print '%s\t%s\t%s\t%s\t%s\t%s' %(repid, chro, start, end, repname, repfam)
                 #print '%s\t%s\t%s' %(chro, start, end)
@@ -77,9 +76,8 @@ def main():
 
     if not args.output:
         args.output = '%s.clean.gff' %(os.path.splitext(args.gff)[0])
- 
-    ping = read_gff('HEG4.ALL.ping.gff')
-    gff_parse(args.gff, args.output, ping)
+
+    gff_parse(args.gff, args.output)
 
 if __name__ == '__main__':
     main()

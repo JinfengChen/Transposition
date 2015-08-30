@@ -10,10 +10,7 @@ from Bio import SeqIO
 def usage():
     test="name"
     message='''
-python Sum_unique.py --input RIL275_RelocaTEi.CombinedGFF.characterized.unique_mPing.gff
-
-get list of unique mPing number for each RILs, generate mping frquency for shared mPing in RILs, can check parental mPing, shared in RILs
- 
+python Sum_unique.py --input RIL275_RelocaTEi.CombinedGFF.characterized.unique_mPing.gff 
     '''
     print message
 
@@ -66,8 +63,7 @@ def readtable_ril(infile, mping_correct):
             line = line.rstrip()
             if len(line) > 2: 
                 unit = re.split(r'\t',line)
-                #if not unit[1] == unit[10]:
-                if not unit[1] == unit[10] and unit[3] == unit[12] and unit[4] == unit[13]:
+                if not unit[1] == unit[10]:
                     mping1= '%s:%s-%s' %(unit[0], unit[3], unit[4])
                     mping2= '%s:%s-%s' %(unit[9], unit[12], unit[13])
                     ril1  = r.search(unit[1]).groups(0)[0] if r.search(unit[1]) else 'NA'
@@ -76,7 +72,7 @@ def readtable_ril(infile, mping_correct):
                         mping1 = mping_correct[mping1]
                     if mping_correct.has_key(mping2):
                         mping2 = mping_correct[mping2]
-                    #print '%s\t%s\t%s\t%s' %(mping1, ril1, mping2, ril2)
+                    print '%s\t%s\t%s\t%s' %(mping1, ril1, mping2, ril2)
                     data[mping1][ril1] = 1
                     data[mping2][ril2] = 1
     return data
@@ -88,14 +84,13 @@ def readtable_nonref(infile, mping_correct):
     with open (infile, 'r') as filehd:
         for line in filehd:
             line = line.rstrip()
-            if len(line) > 2:
+            if len(line) > 2: 
                 unit = re.split(r'\t',line)
-                if unit[3] == unit[12] and unit[4] == unit[13]:
-                    mping= '%s:%s-%s' %(unit[0], unit[3], unit[4])
-                    ril  = r.search(unit[1]).groups(0)[0] if r.search(unit[1]) else 'NA'
-                    if mping_correct.has_key(mping):
-                        mping = mping_correct[mping]
-                    data[mping][ril] = 1
+                mping= '%s:%s-%s' %(unit[0], unit[3], unit[4])
+                ril  = r.search(unit[1]).groups(0)[0] if r.search(unit[1]) else 'NA'
+                if mping_correct.has_key(mping):
+                    mping = mping_correct[mping]
+                data[mping][ril] = 1
     return data
 
 ##unique mping
@@ -109,31 +104,6 @@ def readtable(infile):
                 unit = re.split(r'\t',line)
                 ril  = r.search(unit[1]).groups(0)[0] if r.search(unit[1]) else 'NA'
                 data[ril] += 1
-    return data
-
-##get class for each ril from gff
-#Chr1    RIL231_0        transposable_element_attribute  36023407        36023409
-def get_ril_class(infile):
-    data = defaultdict(lambda : defaultdict(lambda : int()))
-    r1 = re.compile(r'type=hom')
-    r2 = re.compile(r'type=het')
-    r3 = re.compile(r'type=som')
-    with open (infile, 'r') as filehd:
-        for line in filehd: 
-            line = line.rstrip()
-            if len(line) > 2 and not line.startswith('#'):
-                unit = re.split(r'\t',line)
-                ril  = re.split(r'_',unit[1])[0]
-                ril  = re.sub(r'RIL', r'', ril)
-                if r1.search(line):
-                    data[ril][0] += 1
-                    data[ril][3] += 1
-                elif r2.search(line):
-                    data[ril][1] += 1
-                    data[ril][3] += 1
-                elif r3.search(line):
-                    data[ril][2] += 1
-                    data[ril][3] += 1
     return data
 
 
@@ -158,8 +128,8 @@ def main():
 
     r = re.compile(r'(\w+):(\d+)-(\d+)')
     ##mPing_allele_frequency
-    ofile = open('%s.shared_mping.ril.frequency' %(prefix), 'w') 
-    ofile1 = open('%s.shared_mping.ril.list' %(prefix), 'w')
+    ofile = open('%s.mping.ril.frequency' %(prefix), 'w') 
+    ofile1 = open('%s.mping.ril.list' %(prefix), 'w')
     for mping in mping_ovlp_rils.keys():
         m = r.search(mping)
         chro, start, end = ['', 0, 0]
@@ -168,12 +138,8 @@ def main():
             start = m.groups(0)[1]
             end   = m.groups(0)[2]
         count = len(mping_ovlp_rils[mping].keys())
-        if mping_ovlp_heg4.has_key(mping):
-            print >> ofile1, '%s\tParental\t%s' %(mping, ','.join(map(str, mping_ovlp_rils[mping].keys())))
-            print >> ofile, '%s\t%s\t%s\t%s\t%s\t%s\t%s\tParental' %(chro, start, end, mping, '+', count, float(count)/275)
-        else:
-            print >> ofile1, '%s\tRIL\t%s' %(mping, ','.join(map(str, mping_ovlp_rils[mping].keys())))
-            print >> ofile, '%s\t%s\t%s\t%s\t%s\t%s\t%s\tRIL' %(chro, start, end, mping, '+', count, float(count)/275)
+        print >> ofile1, '%s\t%s' %(mping, ','.join(map(str, mping_ovlp_rils[mping].keys())))
+        print >> ofile, '%s\t%s\t%s\t%s\t%s\t%s\t%s' %(chro, start, end, mping, '+', count, float(count)/275)
     ofile.close()
     ofile1.close()
 
@@ -193,19 +159,15 @@ def main():
  
     #unique 
     unique_mping = readtable(args.input)
-    unique_mping_class = get_ril_class(args.input)
     #output table
     ofile = open('%s.mping.shared_unique_table.txt' %(prefix), 'w')
-    print >> ofile, 'Sample\tShared_HEG4\tShared_RILs\tShared\tUnique\tUnique_hom\tUnique_het\tUnique_som'
+    print >> ofile, 'Sample\tShared_HEG4\tShared_RILs\tShared\tUnique'
     for ril in sorted(heg4_mping_count.keys(), key=int):
         shared_heg4 = heg4_mping_count[ril]
         shared_rils = ril_mping_count[ril]
         shared      = int(shared_heg4) + int(shared_rils)
         unique      = unique_mping[ril]
-        unique_hom  = unique_mping_class[ril][0]
-        unique_het  = unique_mping_class[ril][1]
-        unique_som  = unique_mping_class[ril][2]
-        print >> ofile, 'RIL%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s' %(ril, shared_heg4, shared_rils, shared, unique, unique_hom, unique_het, unique_som)
+        print >> ofile, 'RIL%s\t%s\t%s\t%s\t%s' %(ril, shared_heg4, shared_rils, shared, unique)
     ofile.close()
 
     print 'Sample\tUnique_mPing'

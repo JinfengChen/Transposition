@@ -33,7 +33,8 @@ echo "Run bwa mapping to pseudogenome"
 python runRIL_bwa.py --input ../input/RILs_ALL_unmapped_mping_fastq > log 2>&1 &
 python runRIL_bwa.py --input ../input/RILs_ALL_unmapped_mping_fastq2 > log 2>&1 &
 python runRIL_bwa.py --input ../input/RILs_ALL_unmapped_mping_fastq3 > log 2>&1 &
-perl /rhome/cjinfeng/software/bin/qsub-pbs.pl --maxjob 30 --lines 1 --interval 120 --resource nodes=1:ppn=12,walltime=100:00:00,mem=20G --convert no RIL_bwa.sh > log1 2>&1 &
+perl /rhome/cjinfeng/BigData/software/bin/qsub-pbs.pl --maxjob 30 --lines 1 --interval 120 --resource nodes=1:ppn=12,walltime=100:00:00,mem=20G --convert no RIL_bwa.sh > log1 2>&1 &
+echo "Redo mapping using all RILs mPing AF>0.1, 20150827:RILs_ALL_unmapped_mping_bam"
 
 echo "chech finished"
 ls RILs_ALL_bam/*.bam | sed 's/RILs_ALL_bam\///' | sed 's/.bam//' | sed 's/GN/RIL/' > rils.list0
@@ -45,6 +46,14 @@ python mPing_Boundary_Coverage.py --bam_ref ../input/RILs_ALL_bam --bam_pseudo .
 python mPing_Boundary_Coverage.py --bam_ref ../input/RILs_ALL_bam --bam_pseudo ../input/RILs_ALL_unmapped_mping_bam --gff_ref ../input/HEG4.ALL.mping.non-ref.100.gff --gff_pseudo ../input/MSU_r7.Pseudo_mPing.100.gff > log 2>&1 &
 python mPing_Boundary_Coverage.py --bam_ref ../input/RILs_ALL_bam --bam_pseudo ../input/RILs_ALL_unmapped_mping_bam --gff_ref ../input/HEG4.ALL.mping.non-ref.high.gff --gff_pseudo ../input/MSU_r7.Pseudo_mPing.high.gff > log 2>&1 &
 python mPing_Boundary_Coverage.py --bam_ref ../input/RILs_ALL_bam --bam_pseudo ../input/RILs_ALL_unmapped_mping_bam --gff_ref ../input/HEG4.ALL.mping.non-ref.debug.gff --gff_pseudo ../input/MSU_r7.Pseudo_mPing.debug.gff > log 2>&1 &
+
+echo "add SNPmap to comfirm binmap"
+#test run
+python mPing_Boundary_Coverage.py --bam_ref ../input/RILs_ALL_bam --bam_pseudo ../input/RILs_ALL_unmapped_mping_bam_HEG4_mPing --gff_ref ../input/HEG4.ALL.mping.non-ref.debug.gff --gff_pseudo ../input/MSU_r7.Pseudo_mPing.SNPmap.gff > log 2>&1
+#update to use mPing in RIL with AF>0.1
+python mPing_Boundary_Coverage.py --bam_ref ../input/RILs_ALL_bam --bam_pseudo ../input/RILs_ALL_unmapped_mping_bam --gff_ref ../input/RIL275_RelocaTEi.CombinedGFF.characterized.AF0.1.gff --gff_pseudo ../input/MSU_r7.Pseudo_mPing_RILs.gff > log 2>&1 
+#check process
+grep "^../input/RILs_ALL_bam/GN" mPing_boundary.bamcheck_ref.txt | cut -d" " -f1 | uniq | sort | uniq | wc -l
 
 echo "summarize results from mPing_Boundary_Coverage.py"
 python Sum_linked_mPing_status.py --dir mPing_boundary_mPing --distance ../input/mPing_dist.100kb.list.sorted | sort -k2,2n > mPing_boundary.linked_100kb.table.txt
@@ -63,6 +72,10 @@ echo "ave in 100 kb interval"
 python avg_interval.py --input mPing_boundary.linked_50Mb_debug2.table_clean.txt > mPing_boundary.linked_50Mb_debug2.table_clean.sum
 python avg_interval.py --input mPing_boundary.linked_50Mb_debug1.table_clean.txt > mPing_boundary.linked_50Mb_debug1.table_clean.sum
 cat avg_interval_test.R | R --slave
+
+echo "update to use only mPing, distance and excision, not pairs which have many duplicate"
+python avg_interval.py --excision mPing_boundary_mPing_debug2_results/mPing_boundary.linked_50Mb_debug2.mping_excision.list --distance ../input/mPing_dist2.50Mb.list.sorted
+cat avg_interval_test.R | R --slave | grep "p-value"
 
 echo "plot point view of excision and distance"
 python Sum_linked_mPing_statusV2.py --dir ../../../Compare_excision_transposase/bin/High_excision_csv_Ping --distance ../input/mPing_dist_RIL_AF0.1.50Mb.list.sorted --project mPing_boundary.linked_50Mb_debug2
