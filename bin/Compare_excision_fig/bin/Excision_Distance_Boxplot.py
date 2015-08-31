@@ -50,11 +50,16 @@ def read_highexcision(infile, distance):
     with open (infile, 'r') as filehd:
         for line in filehd:
             line = line.rstrip()
-            if len(line) > 2: 
+            if len(line) > 2 and line.startswith(r'Chr'): 
                 unit = re.split(r' |\t',line)
                 mping = re.split(r'-', unit[0])[0]
                 mping = re.sub(r':', r'.', mping)
-                data[mping] = distance[mping] if distance.has_key(mping) else 'NA'
+                if distance.has_key(mping):
+                    data[mping] = distance[mping]
+                else:
+                    data[mping] = 'NA'
+                    print 'no distance : %s' %(mping)
+                #data[mping] = distance[mping] if distance.has_key(mping) else 'NA'
     return data
 
 #mPing   Excision        Distance
@@ -130,8 +135,8 @@ def write_distance_excision(mping, excision, distance, outfile, flag):
 def writetable(highmping, allmping, prefix):
     ofile1 = open('%s.high.txt' %(prefix), 'w')
     ofile2 = open('%s.all.txt' %(prefix), 'w')
-    high_dist = '\t'.join(map(str, highmping.values()))
-    all_dist  = '\t'.join(map(str, allmping.values()))
+    high_dist = '\n'.join(map(str, highmping.values()))
+    all_dist  = '\n'.join(map(str, allmping.values()))
     print >> ofile1,  high_dist
     print >> ofile2,  all_dist
     ofile1.close()
@@ -142,6 +147,7 @@ def main():
     parser.add_argument('--highexcision')
     parser.add_argument('--distance')
     parser.add_argument('--gff')
+    parser.add_argument('--output')
     parser.add_argument('-v', dest='verbose', action='store_true')
     args = parser.parse_args()
     try:
@@ -151,6 +157,8 @@ def main():
         sys.exit(2)
 
     prefix = 'Excision_distance.boxplot'
+    if args.output:
+        prefix = args.output
 
     distance          = read_distance(args.distance)
     highexcisionmping = read_highexcision(args.highexcision, distance)

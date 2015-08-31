@@ -141,6 +141,7 @@ def main():
     parser.add_argument('--excision2')
     parser.add_argument('--distance')
     parser.add_argument('--gff')
+    parser.add_argument('--output')
     parser.add_argument('-v', dest='verbose', action='store_true')
     args = parser.parse_args()
     try:
@@ -150,6 +151,8 @@ def main():
         sys.exit(2)
 
     prefix = 'Excision_distance.matrix'
+    if args.output:
+        prefix = args.output
 
     ref_mping = read_gff(args.gff)
     distance  = read_distance(args.distance)

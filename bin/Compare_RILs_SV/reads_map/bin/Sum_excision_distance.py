@@ -10,7 +10,7 @@ from Bio import SeqIO
 def usage():
     test="name"
     message='''
-python Sum_linked_mPing_status.py --dir mPing_boundary_mPing --distance ../input/mPing_dist.100kb.list.sorted
+python Sum_excision_distance.py --dir mPing_boundary_mPing --distance ../input/mPing_dist.100kb.list.sorted --blacklist blacklist.ril
 
 --dir: directory of results of mPing_Boundary_Coverage.py
 --distance: distance between pairs of mPing and their strand
@@ -110,7 +110,20 @@ def readcsv_excision(infile):
                     data[unit[0]] = unit[5]
     return data
 
-def summary(directory, mpings, prefix):
+#read blacklist of problem RILs
+def read_blacklist(infile):
+    data = defaultdict(lambda : int())
+    with open (infile, 'r') as filehd:
+        for line in filehd:
+            line = line.rstrip()
+            if len(line) > 2: 
+                unit = re.split(r'\t',line)
+                ril  = re.sub(r'RIL', r'', unit[0])
+                data[ril] = 1
+    return data
+
+
+def summary(directory, mpings, prefix, blacklist):
     ofile = open ('%s.excision_distance.list' %(prefix), 'w')
     ofile1 = open ('%s.distance_accumulation_excision.list' %(prefix), 'w')
     ofile2 = open ('%s.mping_excision.list' %(prefix), 'w')
@@ -130,12 +143,19 @@ def summary(directory, mpings, prefix):
         if not os.path.isfile('%s/%s.matrix.csv' %(directory, mping)):
             continue
         mping_status = readcsv_excision('%s/%s.matrix.csv' %(directory, mping))
-        excision = 0 
+        excision = 0
+        rils = [] 
         for ril in mping_status.keys():
+            if blacklist.has_key(ril):
+                continue
             #if mping_status[ril] == 'clipped':
             if mping_status[ril] == 'Excision':
                 excision += 1
-        print >> ofile2, '%s\t%s' %(mping, excision)
+                ril = re.sub(r'RIL', r'', ril)
+                rils.append('RIL%s' %(ril))
+        mping_temp = re.split('_', mping)
+        mping_temp1= '%s:%s-%s' %(mping_temp[0], mping_temp[1], mping_temp[2])
+        print >> ofile2, '%s\t%s\t%s' %(mping_temp1, excision, ','.join(rils))
         if excision < 20:
             print >> ofile, '%s\t%s\t%s' %(mping, mpings[mping], excision)
             index = int(float(mpings[mping])/distance_int)
@@ -195,6 +215,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-dir', '--dir')
     parser.add_argument('-d', '--distance')
+    parser.add_argument('-b', '--blacklist')
     parser.add_argument('-p', '--project')
     parser.add_argument('-v', dest='verbose', action='store_true')
     args = parser.parse_args()
@@ -208,7 +229,10 @@ def main():
         args.project = 'mPing_boundary.linked_100kb'
 
     mpings = readtable(args.distance)
-    summary(args.dir, mpings, args.project)
+    blacklist_ril = defaultdict(lambda : int())
+    if args.blacklist:
+        blacklist_ril = read_blacklist(args.blacklist) 
+    summary(args.dir, mpings, args.project, blacklist_ril)
 
 if __name__ == '__main__':
     main()

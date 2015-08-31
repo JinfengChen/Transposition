@@ -87,3 +87,10 @@ cat mPing_boundary.linked_50Mb_debug2.table_clean.point_view.R | R --slave
 cat mPing_boundary.linked_50Mb_debug2.table_clean.proportion_accumulation.R | R --slave
 #ks test p-value=0.0001, difference between excision and control
 cat mPing_boundary.linked_50Mb_debug2.table_clean.proportion_accumulation.test.R | R --slave
+
+echo "419 mPing, including 6 ping in HEG4, remove problem RILs"
+#need to use new distance file: two column RILs/distance, calculate distance from 419 mPing but correcting with RILs if they overlap in large amount of RILs
+#419 mPing, 891 excision. get these to Compare_footprint_events to calculate events number.
+python Sum_excision_distance.py --dir ../../../Compare_excision_transposase/bin/High_excision_csv_Ping_HEG4_mPing_only --distance ../input/mPing_dist2.50Mb.list.sorted --blacklist ../input/Bam.Core.blacklist  --project mPing_boundary.linked_50Mb_debug2
+
+
