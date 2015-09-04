@@ -62,6 +62,7 @@ python get_excision_bam.py --input mping.excision.draw.example
 python get_excision_bam.py --input mping.excision.draw.highexcision --output test_example_highexcision_draw &
 python get_excision_bam.py --input mping.excision.draw.ping --output test_example_ping_draw &
 python get_excision_bam.py --input mping.excision.draw.SV --output test_example_SV
+python get_excision_bam.py --input mping.excision.debug_pcr_false --output test_example_debug_pcr_false_het
 
 echo "excision mPing gff"
 python Excision_GFF.py --input mping.excision.non_ref.table --gff HEG4.ALL.mping.non-ref.gff

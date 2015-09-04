@@ -21,3 +21,8 @@ echo "draw boxplot to compare high vs. all and test significant"
 cat Excision_Events_distance.boxplot.R | R --slave
 #cutoff 4
 cat Excision_Events_distance.boxplot4.R | R --slave
+
+
+echo "HEG distance: mPing_dist2.50Mb.list.sorted"
+python Excision_Distance.py --excision1 ../input/Excision_newpipe_version1.footprint.list.txt --distance ../input/mPing_dist2.50Mb.list.sorted --gff ../input/HEG4.ALL.mping.non-ref.AF0.1.gff --output Excision_distance_HEG4.matrix_events
+python Excision_Distance_Boxplot.2.py --highexcision ../input/mping.excision.draw.highexcision.2 --distance ../input/mPing_dist2.50Mb.list.sorted --gff ../input/HEG4.ALL.mping.non-ref.AF0.1.gff 

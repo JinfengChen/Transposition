@@ -12,8 +12,11 @@
 
 
 #update 20150830
-#P=341/(419*(230/2)*2)=0.0035 we exptect only 50% of the RILS (115=130/2) have these 419 mPing from HEG4
+#P=341/(419*(230/2)*2)=0.0035 we exptect only 50% of the RILS (115=230/2) have these 419 mPing from HEG4
 #p-value=0.0003039
 binom.test(5, 115, p=0.0035)
 #p-value=0.002781
 binom.test(4, 115, p=0.0035)
+
+#the rate is excision per locus per plant.
+#the test is for the given rate, what the the chance of one mPing can have more than 5 excision events, which also mean in 5 rils.
