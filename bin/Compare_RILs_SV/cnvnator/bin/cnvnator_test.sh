@@ -1,12 +1,10 @@
 #!/bin/bash
 #PBS -l nodes=1:ppn=12
-#PBS -l mem=60gb
+#PBS -l mem=20gb
 #PBS -l walltime=100:00:00
 #PBS -j oe
 #PBS -V
 #PBS -d ./
-
-#cd $PBS_O_WORKDIR
 
 module load samtools
 PATH=$PATH:~/BigData/software/SVcaller/ROOT/bin/
@@ -39,9 +37,14 @@ start=`date +%s`
 #    -d \
 #    -k \
 #    -v
-workdir=/rhome/cjinfeng/BigData/00.RD/RILs/Transpostion/bin/Compare_RILs_SV/lumpy/bin
+   #samtools view -h $i | sed 's/Chr//g' | samtools view -Sb - -o $prefix.bam
+   #samtools index $prefix.bam
+   #ln -s $prefix1.bai $prefix.bai
+   prefix=GN26
+   #samtools index GN206.bam
+   /usr/bin/python2.7 /bigdata/stajichlab/cjinfeng/software/SVcaller/speedseq//bin/cnvnator_wrapper.py --cnvnator /bigdata/stajichlab/cjinfeng/software/SVcaller/speedseq//bin/cnvnator-multi -T $prefix-cnvnator-temp -t 12 -w 100 -b $prefix.bam -o $prefix.readdepth -c /bigdata/stajichlab/cjinfeng/software/SVcaller/speedseq//annotations/cnvnator_chroms
+   #rm $prefix.bam $p<F6>refix.bam.bai
 
-/usr/bin/python2.7 /bigdata/stajichlab/cjinfeng/software/SVcaller/speedseq//bin/cnvnator_wrapper.py --cnvnator /bigdata/stajichlab/cjinfeng/software/SVcaller/speedseq//bin/cnvnator-multi -T cnvnator-temp-wrapper -t 12 -w 100 -b sample.1.fq.bam -o sample.1.fq.bam.readdepth -c /bigdata/stajichlab/cjinfeng/software/SVcaller/speedseq//annotations/cnvnator_chroms
 
 end=`date +%s`
 runtime=$((end-start))

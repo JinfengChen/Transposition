@@ -32,10 +32,10 @@ start=`date +%s`
 
 # 3. Detect SVs
 /bigdata/stajichlab/cjinfeng/software/SVcaller/speedseq/bin/speedseq sv \
-    -o sample.1.fq \
-    -B sample.1.fq.bam \
-    -S sample.1.fq.splitters.bam \
-    -D sample.1.fq.discordants.bam \
+    -o sample \
+    -B sample.bam \
+    -S sample.splitters.bam \
+    -D sample.discordants.bam \
     -R MSU_r7.fa \
     -t $PBS_NP \
     -d \

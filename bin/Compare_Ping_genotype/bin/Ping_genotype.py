@@ -296,7 +296,10 @@ def genotype_ping(mpings, rils, snpmap, outfile):
             ping_codes1.append(data[ril][c])
             if str(data[ril][c]) == '1':
                 ping_codes2.append(c)
-        print >> ofile2, '%s\t%s\t%s\t%s' %(ril, rils[re.sub(r'GN', r'', ril)], ''.join(map(str, ping_codes1)), ','.join(map(str, ping_codes2)))
+        if len(ping_codes2) > 0:
+            print >> ofile2, '%s\t%s\t%s\t%s' %(ril, rils[re.sub(r'GN', r'', ril)], ''.join(map(str, ping_codes1)), ','.join(map(str, ping_codes2)))
+        else:
+            print >> ofile2, '%s\t%s\t%s\tNA' %(ril, rils[re.sub(r'GN', r'', ril)], ''.join(map(str, ping_codes1)))
     ofile2.close()
 
 #return dict of ril->lib_name

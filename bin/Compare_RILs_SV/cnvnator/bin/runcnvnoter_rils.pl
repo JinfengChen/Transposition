@@ -45,13 +45,16 @@ date
 module load samtools
 PATH=\$PATH:~/BigData/software/SVcaller/ROOT/bin/
 
+CPU=\$PBS_NP
+if [ ! \$CPU ]; then
+CPU=12
+fi
+
 readn=`head -n 1 $prefix.flagstat | cut -d" " -f1`
 if [ ! -e $ril.readdepth.bed ] && [ \$readn -gt 18600000 ]; then
 
-   samtools view -h $bam | sed 's/Chr//g' | samtools view -Sb - -o $ril.bam
-   samtools index $ril.bam 
-   /usr/bin/python2.7 /bigdata/stajichlab/cjinfeng/software/SVcaller/speedseq//bin/cnvnator_wrapper.py --cnvnator /bigdata/stajichlab/cjinfeng/software/SVcaller/speedseq//bin/cnvnator-multi -T $ril-cnvnator-temp -t \$PBS_NP -w 100 -b $ril.bam -o $ril.readdepth -c /bigdata/stajichlab/cjinfeng/software/SVcaller/speedseq/annotations/cnvnator_chroms
-   rm $ril.bam $ril.bam.bai
+   /usr/bin/python2.7 /bigdata/stajichlab/cjinfeng/software/SVcaller/speedseq//bin/cnvnator_wrapper.py --cnvnator /bigdata/stajichlab/cjinfeng/software/SVcaller/speedseq//bin/cnvnator-multi -T $ril-cnvnator-temp -t \$CPU -w 100 -b $bam -o $ril.readdepth -c /bigdata/stajichlab/cjinfeng/software/SVcaller/speedseq/annotations/cnvnator_chroms
+
 else
    echo "Read coverage low than 5X: \$readn"
 fi

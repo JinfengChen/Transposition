@@ -50,38 +50,33 @@ cnvnator=/rhome/cjinfeng/BigData/software/SVcaller/speedseq/src/cnvnator/bin
 #bam=/rhome/cjinfeng/BigData/software/SVcaller/speedseq/example/sample.bam
 temp=$workdir/cnvnator-temp
 bam=$workdir/sample.1.fq.bam
-bin=100
 chr=Chr10
-prefix=sample.1.fq.bam
-#$cnvnator/cnvnator-multi -root $temp/sample.1.fq.bam.root -tree $bam -unique
+$cnvnator/cnvnator-multi -root $temp/MSU7.root -tree $bam
 echo "Step1 Done"
 echo ""
+
 #>>>GENERATING HISTOGRAM
 echo "Step2. GENERATING HISTOGRAM"
 chrs=/bigdata/stajichlab/cjinfeng/software/SVcaller/speedseq//annotations/cnvnator_chroms
-$cnvnator/cnvnator-multi -root $temp/sample.1.fq.bam.root -outroot $temp/sample.1.fq.bam.hist.root -his $bin -d $chrs
+$cnvnator/cnvnator-multi -root $temp/MSU7.root -his 100 -d $chrs
 echo "Step2 Done"
 echo ""
 
 #>>>CALCULATING STATISTICS
 echo "Step3. CALCULATING STATISTICS"
-$cnvnator/cnvnator-multi -root $temp/sample.1.fq.bam.hist.root -stat $bin
+$cnvnator/cnvnator-multi -root $temp/MSU7.root -stat 100
 echo "Step3. Done"
 echo ""
 
-#repeat with bin=1000
-$cnvnator/cnvnator-multi -root $temp/sample.1.fq.bam.root -outroot $temp/sample.1.fq.bam.hist.root -his 1000 -d $chrs
-$cnvnator/cnvnator-multi -root $temp/sample.1.fq.bam.hist.root -stat 1000
-
 #>>>RD SIGNAL PARTITIONING
 echo "Step4. RD SIGNAL PARTITIONING"
-$cnvnator/cnvnator-multi -root $temp/sample.1.fq.bam.hist.root -partition $bin
+$cnvnator/cnvnator-multi -root $temp/MSU7.root -partition 100 -ngc
 echo "Step4 Done"
 echo ""
 
 #>>>CNV CALLING
 echo "Step5. CNV CALLING"
-$cnvnator/cnvnator-multi -root $temp/sample.1.fq.bam.hist.root -call $bin > $bam\.readdepth.txt
+$cnvnator/cnvnator-multi -root $temp/MSU7.root -call 100 -ngc
 echo "Step5 Done"
 echo ""
 
