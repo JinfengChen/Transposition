@@ -11,7 +11,7 @@ module load samtools
 PATH=$PATH:~/BigData/software/SVcaller/ROOT/bin/
 
 start=`date +%s`
-RIL=GN22
+RIL=GN26
 
 # Example speedseq commands on a small slice of chromosome 20
 
@@ -21,13 +21,13 @@ RIL=GN22
 #   $RIL\.1.fq \
 #   $RIL\.2.fq
 
-/bigdata/stajichlab/cjinfeng/software/SVcaller/speedseq/bin/speedseq align \
-     -t $PBS_NP \
-     -o $RIL \
-     -R "@RG\tID:id\tSM:$RIL\tLB:lib" \
-     /rhome/cjinfeng/BigData/00.RD/RILs/Transpostion/bin/Compare_RILs_SV/lumpy/bin/MSU_r7.fa \
-     $RIL\.1.fq \
-     $RIL\.2.fq
+#/bigdata/stajichlab/cjinfeng/software/SVcaller/speedseq/bin/speedseq align \
+#     -t $PBS_NP \
+#     -o $RIL \
+#     -R "@RG\tID:id\tSM:$RIL\tLB:lib" \
+#     /rhome/cjinfeng/BigData/00.RD/RILs/Transpostion/bin/Compare_RILs_SV/lumpy/bin/MSU_r7.fa \
+#     $RIL\.1.fq \
+#     $RIL\.2.fq
 
 # 2. Detect SNVs and indels
 #/bigdata/stajichlab/cjinfeng/software/SVcaller/speedseq/bin/speedseq var \

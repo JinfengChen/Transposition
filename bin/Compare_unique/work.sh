@@ -38,5 +38,10 @@ python MergePingCode.py --input RIL230_RelocaTEi.CombinedGFF.characterized.clean
 echo "need to rewrite this when classify hom/het/som, use large proportion of genotype to represent. this will minimum the error of het by method"
 python Sum_class_clean.py --input RIL230_RelocaTEi.CombinedGFF.characterized.clean.unique_mPing.gff
 python Sum_Ping_mPing.py --code RIL230_RelocaTE.sofia.ping_code.table --output RIL230_RelocaTEi.CombinedGFF.characterized.clean
- 
+python Sum_Ping_mPing_Narrow_range.py --code RIL230_RelocaTE.sofia.ping_code.table --output RIL230_RelocaTEi.CombinedGFF.characterized.clean.narrow_range
+awk '$2>=163 && $2<=203' RIL230_RelocaTEi.CombinedGFF.characterized.clean.mping.shared_unique_table.ping_code.txt > RIL230_RelocaTEi.CombinedGFF.characterized.clean.mping.shared_unique_table.ping_code.narrow_range.txt
+python Sum_Ping_mPing_High_depth.py --code RIL230_RelocaTE.sofia.ping_code.table --output RIL230_RelocaTEi.CombinedGFF.characterized.clean.high_depth
+python Sum_Ping_mPing_High_depth_table.py --table RIL230_RelocaTEi.CombinedGFF.characterized.clean.mping.shared_unique_table.ping_code.txt --output high_depth
+python Sum_Ping_mPing_High_depth.py --code RIL230_RelocaTE.sofia.ping_code.table --output RIL230_RelocaTEi.CombinedGFF.characterized.clean.high_narrow --narrow
+python Sum_Ping_mPing_High_depth_table.py --table RIL230_RelocaTEi.CombinedGFF.characterized.clean.mping.shared_unique_table.ping_code.txt --output high_narrow --narrow
 

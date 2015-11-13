@@ -7,10 +7,10 @@ error.bar <- function(x, y, upper, lower=upper, color,length=0.06,...){
 pdf("mping_intergenic_5distance_withsim.pdf")
 
 par(mar=c(6,4,4,2), cex=1.2)
-som5 <- read.table("../mPing_distr/HEG4.mRNA.5primer.distance.distr")
-EG4  <- read.table("../mPing_distr/EG4.mRNA.5primer.distance.distr")
-str5 <- read.table("../mPing_distr/A123.mRNA.5primer.distance.distr")
-ril5 <- read.table("../mPing_distr/A119.mRNA.5primer.distance.distr")
+som5 <- read.table("../mPing_distr/Landrace_RelocaTE2/HEG4.mRNA.5primer.distance.distr")
+EG4  <- read.table("../mPing_distr/Landrace_RelocaTE2/EG4.mRNA.5primer.distance.distr")
+str5 <- read.table("../mPing_distr/Landrace_RelocaTE2/A123.mRNA.5primer.distance.distr")
+ril5 <- read.table("../mPing_distr/Landrace_RelocaTE2/A119.mRNA.5primer.distance.distr")
 sim5 <- read.table("../mPing_distr/results_simulationV2_TSD9mer_somatic/Simulate.TSD9mer.SomaticMat.mRNA.5primer.distance.distr")
 
 som5 <- som5[-1,]
@@ -27,8 +27,8 @@ sim5 <- sim5[-length(sim5[,1]),]
 
 plot(rev(som5[,4]), type='b', pch= 1,lwd = 2 , col="aquamarine3", xaxt='n', frame.plot = FALSE, ylim=c(0,0.2), ylab="Proportion", xlab="")
 lines(rev(EG4[,4]), type='b',pch= 4,lwd = 2 , col="darkgoldenrod4")
-lines(rev(ril5[,4]), type='b',pch= 2,lwd = 2 , col="steelblue2")
-lines(rev(str5[,4]), type='b',pch= 3,lwd = 2 , col="sandybrown")
+lines(rev(str5[,4]), type='b',pch= 2,lwd = 2 , col="steelblue2")
+lines(rev(ril5[,4]), type='b',pch= 3,lwd = 2 , col="sandybrown")
 lines(rev(sim5[,4]), type='b',pch= 20, cex=0.2,lwd = 2 , col="dim gray")
 error.bar(1:length(sim5[,4]), rev(sim5[,4]), rev(sim5[,7]-sim5[,4]), rev(sim5[,7]-sim5[,4]), 'dim gray')
 

@@ -23,6 +23,7 @@ samtools view ../../../../QTL_pipe/input/fastq/RILs_ALL_bam/GN31.bam Chr3:6,442,
 
 #R26
 blat -minScore=10 -tileSize=7 ../input/MSU_r7.fa Chr3_6441699_RIL26.sanger_right_junction.fa Chr3_6441699_RIL26.sanger_right_junction.blat
+blat -minScore=10 -tileSize=7 ../input/MSU_r7.fa Chr3_6441699_RIL26.sanger_left_junction.fa Chr3_6441699_RIL26.sanger_left_junction.blat
 
 echo "Chr8.24625267, RIL155"
 samtools view ../../../../QTL_pipe/input/fastq/RILs_ALL_bam/GN155.bam Chr8:24,625,267-24,625,441

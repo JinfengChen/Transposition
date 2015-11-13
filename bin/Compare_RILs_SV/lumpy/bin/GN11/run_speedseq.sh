@@ -11,7 +11,7 @@ module load samtools
 PATH=$PATH:~/BigData/software/SVcaller/ROOT/bin/
 
 start=`date +%s`
-RIL=GN22
+RIL=GN11
 
 # Example speedseq commands on a small slice of chromosome 20
 

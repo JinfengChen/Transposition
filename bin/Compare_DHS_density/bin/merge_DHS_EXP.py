@@ -26,7 +26,7 @@ def readtable(infile):
     with open (infile, 'r') as filehd:
         for line in filehd:
             line = line.rstrip()
-            if len(line) > 2: 
+            if len(line) > 2 and line.startswith(r'LOC'): 
                 unit = re.split(r'\t',line)
                 data[unit.pop(0)] = unit
     return data
@@ -36,10 +36,9 @@ def main():
     
     list1 = readtable(sys.argv[1])
     list2 = readtable(sys.argv[2])
-    list3 = readtable(sys.argv[3])
     for gene1 in sorted(list1.keys()):
-        if list2.has_key(gene1) and list3.has_key(gene1):
-            print '%s\t%s\t%s\t%s' %(gene1, '\t'.join(list1[gene1]), '\t'.join(list2[gene1]), list3[gene1][0])
+        if list2.has_key(gene1):
+            print '%s\t%s\t%s' %(gene1, '\t'.join(list1[gene1]), '\t'.join(list2[gene1]))
 
 if __name__ == '__main__':
     main()

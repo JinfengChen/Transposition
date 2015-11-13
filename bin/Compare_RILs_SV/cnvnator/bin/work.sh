@@ -4,4 +4,14 @@
 
 echo "run rils"
 qsub -q highmem cnvnator_rils.sh
-awk '$4 < 0.05 || $4>2' GN162.readdepth.bed > GN162.filtered.bed
+
+echo "Filter"
+python Filter_CNVnator.py --input RIL275_correction
+#or 
+qsub run_filter.sh
+
+echo "prepare draw bam and validation table of manual check"
+python Prepare_validation.py --input RIL230_core_filtered
+sort -k1,1 -k2,2n RIL230_core_filtered.validation_table.txt > RIL230_core_filtered.validation_table.sorted.txt
+python get_excision_bam.py --input RIL230_core_filtered.draw.txt  --output RIL230_core_filtered.draw
+

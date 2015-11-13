@@ -11,11 +11,12 @@
 
 start=`date +%s`
 
+RIL=GN23
 echo "Do thing here"
-~/BigData/software/SVcaller/speedseq/bin/speedseq align -t 16 -o sample -R "@RG\tID:id\tSM:RIL197\tLB:lib"\
+~/BigData/software/SVcaller/speedseq/bin/speedseq align -t 16 -o $RIL -R "@RG\tID:id\tSM:$RIL\tLB:lib"\
    MSU_r7.fa \
-   sample.1.fq \
-   sample.2.fq
+   $RIL\.1.fq \
+   $RIL\.2.fq
 
 #samtools sort sample.1.fq.discordants.unsorted.bam sample.discordants
 #samtools sort sample.1.fq.splitters.unsorted.bam sample.splitters
