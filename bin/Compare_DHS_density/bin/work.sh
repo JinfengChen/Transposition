@@ -24,5 +24,22 @@ python merge_DHS_EXP.py mPing_Number.DHS_promoter.list gene.fpkm.list | sort -k5
 echo "overlap of mPing with DHS"
 python Distance2DHS.py
 
-python TSDprofile_DHS.py ../input/RIL230_RelocaTEi.CombinedGFF.characterized.clean.unique_mPing.gff test.profile > test.sum &
+python TSDprofile_DHS_R.py --bam ../input/DHS.unique.bam --gff ../input/RIL230_RelocaTEi.CombinedGFF.characterized.clean.unique_mPing.gff
+
+
+echo "Nuclesome and DHS"
+#Nuc chr1
+python TSSprofile_20bp.py > log 2>&1 &
+python TSSprofile_Nuc_R.py ../input/Nucleosome.Chr1.unique.bam ../input/MSU7.gene.exon_number.Chr1.gtf
+#Nuc genome
+python TSSprofile_Nuc_R.py ../input/Nucleosome.unique.bam ../input/MSU7.gene.exon_number.gtf
+#DHS chr1
+python TSSprofile1.py ../input/MSU7.gene.exon_number.Chr1.gtf DHS &
+python TSSprofile_DHS_R.py ../input/DHS.Chr1.unique.bam ../input/MSU7.gene.exon_number.Chr1.gtf
+python TTSprofile_DHS_R.py ../input/DHS.Chr1.unique.bam ../input/MSU7.gene.exon_number.Chr1.gtf
+#exon is very small mean=325, median=163, profile give no information for nucleosome position? exon start and end showed similary pattern
+#python EXONprofile_DHS_R.py ../input/DHS.Chr1.unique.bam ../input/MSU7.gene.exon_number.Chr1.gtf
+#DHS genome
+python TSSprofile_DHS_R.py ../input/DHS.unique.bam ../input/MSU7.gene.exon_number.gtf
+python TTSprofile_DHS_R.py ../input/DHS.unique.bam ../input/MSU7.gene.exon_number.gtf
 
