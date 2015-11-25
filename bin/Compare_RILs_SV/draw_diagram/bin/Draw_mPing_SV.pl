@@ -66,14 +66,16 @@ sub plot_diagram_simple
 {
 my ($svg, $data, $x, $y) = @_;
 
+#upper plot: HEG4
 plot_text($svg, $x, $y, 'start', '15', $data->{'up_header'});
 #plot_chromosome_line()
-#plot_zoom_in_mping()
+plot_zoom_in_mping($svg, $x, $y, 'up', $data) if exists $data->{'up_zoom_in_mping'};
 plot_zoom_in($svg, $x, $y, 'up', $data) if exists $data->{'up_zoom_in'};
 
+#lower plot: RILs
 plot_text($svg, $x, $y+70, 'start', '15', $data->{'down_header'});
 #plot_chromosome_line() 
-#plot_zoom_in_mping()
+plot_zoom_in_mping($svg, $x, $y+70, 'down', $data) if exists $data->{'down_zoom_in_mping'};
 plot_zoom_in($svg, $x, $y+70, 'down', $data) if exists $data->{'down_zoom_in'}; 
 
 }
@@ -90,23 +92,93 @@ my $strain_name=$svg->text(
     )->cdata($strain);
 }
 
-################################### sub for plot_zoom in breakpoint signiature #######
-sub plot_zoom_in
+################################### sub for plot zoom in mping #######################
+sub plot_zoom_in_mping
 {
 my ($svg, $x, $y, $pos, $data) =@_;
-my $scale  = 500/2000;
+my $scale  = 500/5000;
 my $start = 0;
 my $end   = 0;
+my $upcut   = 0;
+my $upcut_len= 0;
+my $downcut = 0;
+my $downcut_len = 0;
 my $zoom_in_y = $y;
 my @zoom_in;
 if ($pos =~ /up/){
    $start = $data->{'up_start'};
    $end   = $data->{'up_end'};
-   $zoom_in_y = $zoom_in_y;
+   if (exists $data->{'up_cut'}){
+       my @temp = split(',', $data->{'up_cut'});
+       $upcut = $temp[0]; 
+       $upcut_len = $temp[1];
+   }
+   $zoom_in_y = $zoom_in_y - 45;
+   @zoom_in = split(";", $data->{'up_zoom_in_mping'});
+}elsif($pos =~ /down/){
+   $start = $data->{'down_start'};
+   $end   = $data->{'down_end'};
+   if (exists $data->{'down_cut'}){
+       my @temp = split(',', $data->{'down_cut'});
+       $downcut = $temp[0];
+       $downcut_len = $temp[1];
+   }
+   $zoom_in_y = $zoom_in_y - 45;
+   @zoom_in = split(";", $data->{'down_zoom_in_mping'});
+}
+
+for (my $i=0; $i<@zoom_in; $i++){
+   my @zoom_in_inf = split(',', $zoom_in[$i]);
+   my $zoom_in_x = ($zoom_in_inf[0] - $start + 1)*$scale + $x;
+   if ($pos =~ /up/ and $zoom_in_inf[0] > $upcut and $upcut > 0){
+       $zoom_in_x = ($zoom_in_inf[0] - $start - $upcut_len + 1)*$scale + $x;
+   }elsif($pos =~ /down/ and $zoom_in_inf[0] > $downcut and $downcut > 0){
+       $zoom_in_x = ($zoom_in_inf[0] - $start - $downcut_len + 1)*$scale + $x;
+   }
+   my $zoom_in_left_seq  = $zoom_in_inf[2];
+   my $zoom_in_right_seq = $zoom_in_inf[3];
+   my $zoom_in_strand    = $zoom_in_inf[1];
+   print "$zoom_in_inf[0]\t$start\t$x\t$zoom_in_x\t$zoom_in_y\n";
+   plot_text($svg, $zoom_in_x-50, $zoom_in_y, 'middle', '10', $zoom_in_left_seq);
+   plot_text($svg, $zoom_in_x+50, $zoom_in_y, 'middle', '10', $zoom_in_right_seq);
+   plot_text($svg, $zoom_in_x, $zoom_in_y, 'middle', '10', 'mPing');
+   plot_zoom_in_lines($svg, $zoom_in_x, $zoom_in_y)
+}
+
+}
+
+################################### sub for plot_zoom in breakpoint signiature #######
+sub plot_zoom_in
+{
+my ($svg, $x, $y, $pos, $data) =@_;
+my $scale  = 500/5000;
+my $start = 0;
+my $end   = 0;
+my $upcut   = 0;
+my $upcut_len= 0;
+my $downcut = 0;
+my $downcut_len = 0;
+my $zoom_in_y = $y;
+my @zoom_in;
+if ($pos =~ /up/){
+   $start = $data->{'up_start'};
+   $end   = $data->{'up_end'};
+   if (exists $data->{'up_cut'}){
+       my @temp = split(',', $data->{'up_cut'});
+       $upcut = $temp[0];
+       $upcut_len = $temp[1];
+   }
+
+   $zoom_in_y = $zoom_in_y - 45;
    @zoom_in = split(";", $data->{'up_zoom_in'});
 }elsif($pos =~ /down/){
    $start = $data->{'down_start'};
    $end   = $data->{'down_end'};
+   if (exists $data->{'down_cut'}){ 
+       my @temp = split(',', $data->{'down_cut'});
+       $downcut = $temp[0];
+       $downcut_len = $temp[1];
+   }
    $zoom_in_y = $zoom_in_y - 45;
    @zoom_in = split(";", $data->{'down_zoom_in'});
 }
@@ -115,11 +187,17 @@ for (my $i=0; $i<@zoom_in; $i++){
    my @zoom_in_inf = split(',', $zoom_in[$i]);
    #print $zoom_in_inf[0],"\n";
    my $zoom_in_x = ($zoom_in_inf[0] - $start + 1)*$scale + $x;
+   if ($pos =~ /up/ and $zoom_in_inf[0] > $upcut and $upcut > 0){
+       $zoom_in_x = ($zoom_in_inf[0] - $start - $upcut_len + 1)*$scale + $x;
+   }elsif($pos =~ /down/ and $zoom_in_inf[0] > $downcut and $downcut > 0){
+       $zoom_in_x = ($zoom_in_inf[0] - $start - $downcut_len + 1)*$scale + $x; 
+   }
+
    my $zoom_in_left_seq = $zoom_in_inf[1];
    my $zoom_in_right_seq = $zoom_in_inf[3];
    my $zoom_in_filler_seq = $zoom_in_inf[2];
    my $zoom_in_string = $zoom_in_left_seq.' '.$zoom_in_filler_seq.' '.$zoom_in_right_seq;
-   print "$zoom_in_x\t$zoom_in_y\t$zoom_in_string\n"; 
+   print "$zoom_in_inf[0]\t$start\t$x\t$zoom_in_x\t$zoom_in_y\t$zoom_in_string\n"; 
    plot_text($svg, $zoom_in_x, $zoom_in_y, 'middle', '10', $zoom_in_string);
    plot_zoom_in_lines($svg, $zoom_in_x, $zoom_in_y)
 } 
@@ -160,7 +238,7 @@ my $rank=0;
 open IN, "$file" or die "$!";
 while(<IN>){
     chomp $_;
-    next if ($_=~/^$/);
+    next if ($_=~/^$/ or $_ =~/^#/);
     if ($_=~/^>(\d+)/){
         $rank = $1;
         next;
