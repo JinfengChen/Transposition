@@ -69,15 +69,17 @@ my ($svg, $data, $x, $y) = @_;
 #upper plot: HEG4
 plot_text($svg, $x, $y, 'start', '15', $data->{'up_header'});
 #plot_chromosome_line()
-plot_zoom_in_mping($svg, $x, $y, 'up', $data) if exists $data->{'up_zoom_in_mping'};
-plot_zoom_in($svg, $x, $y, 'up', $data) if exists $data->{'up_zoom_in'};
+#plot_zoom_in_mping($svg, $x, $y, 'up', $data) if exists $data->{'up_zoom_in_mping'};
+#plot_zoom_in($svg, $x, $y, 'up', $data) if exists $data->{'up_zoom_in'};
 
 #lower plot: RILs
 plot_text($svg, $x, $y+70, 'start', '15', $data->{'down_header'});
 #plot_chromosome_line() 
-plot_zoom_in_mping($svg, $x, $y+70, 'down', $data) if exists $data->{'down_zoom_in_mping'};
-plot_zoom_in($svg, $x, $y+70, 'down', $data) if exists $data->{'down_zoom_in'}; 
+#plot_zoom_in_mping($svg, $x, $y+70, 'down', $data) if exists $data->{'down_zoom_in_mping'};
+#plot_zoom_in($svg, $x, $y+70, 'down', $data) if exists $data->{'down_zoom_in'}; 
 
+#comparision plot
+plot_matches($svg, $x + 50, $y, $x + 50, $y+60, $data);
 }
 
 ################################### sub for plot_strain name ##########################
@@ -90,6 +92,91 @@ my $strain_name=$svg->text(
                     'font-size'=>$size,'text-anchor'=>$anchor,'stroke-width'=>1
                }
     )->cdata($strain);
+}
+
+################################## sub for plot match ################################
+sub plot_matches
+{
+my ($svg, $x1, $y1, $x2, $y2, $data) = @_;
+my $scale = 500/5000;
+#cut in sequence
+my $upcut   = 0;
+my $upcut_len= 0;
+my $downcut = 0;
+my $downcut_len = 0;
+if (exists $data->{'up_cut'}){
+   my @temp = split(',', $data->{'up_cut'});
+   $upcut = $temp[0]; 
+   $upcut_len = $temp[1];
+}
+if (exists $data->{'down_cut'}){
+   my @temp = split(',', $data->{'down_cut'});
+   $downcut = $temp[0];
+   $downcut_len = $temp[1];
+}
+
+
+my @matches = split(';', $data->{'match'});
+for (my $i=0; $i<@matches; $i++){
+    print "$matches[$i]\n";
+    my @array = split(',', $matches[$i]);
+    my $match_up_x1 = $array[0];
+    my $match_up_x2 = $array[1];
+    my $match_down_x1 = $array[2];
+    my $match_down_x2 = $array[3];
+    my $match_strand = $array[4];
+    print "Original matches: $match_up_x1, $match_up_x2, $match_down_x1, $match_down_x2\n";
+    #convert position to relative cut point if need
+    if ($upcut > 0){
+       if ($match_up_x1 > $upcut){
+           $match_up_x1 = ($match_up_x1 - $data->{'up_start'} - $upcut_len + 1)*$scale + $x1;
+       }else{
+           $match_up_x1 = ($match_up_x1 - $data->{'up_start'} + 1)*$scale + $x1;
+       }
+       if ($match_up_x2 > $upcut){
+           $match_up_x2 = ($match_up_x2 - $data->{'up_start'} - $upcut_len + 1)*$scale + $x1;
+       }else{
+           $match_up_x2 = ($match_up_x2 - $data->{'up_start'} + 1)*$scale + $x1;       
+       }
+    }else{
+       $match_up_x1 = ($match_up_x1 - $data->{'up_start'} + 1)*$scale + $x1;
+       $match_up_x2 = ($match_up_x2 - $data->{'up_start'} + 1)*$scale + $x1; 
+    }
+ 
+    if ($downcut > 0){ 
+       if ($match_down_x1 > $downcut){
+           $match_down_x1 = ($match_down_x1 - $data->{'down_start'} - $downcut_len + 1)*$scale + $x2;
+       }else{
+           $match_down_x1 = ($match_down_x1 - $data->{'down_start'} + 1)*$scale + $x2;
+       }
+       if ($match_down_x2 > $downcut){
+           $match_down_x2 = ($match_down_x2 - $data->{'down_start'} - $downcut_len + 1)*$scale + $x2;
+       }else{
+           $match_down_x2 = ($match_down_x2 - $data->{'down_start'} + 1)*$scale + $x2;        
+       }
+    }else{
+       $match_down_x1 = ($match_down_x1 - $data->{'down_start'} + 1)*$scale + $x2;
+       $match_down_x2 = ($match_down_x2 - $data->{'down_start'} + 1)*$scale + $x2;
+    }
+
+    # plot match
+    print "match x: $match_up_x1\t$match_up_x2\t$match_down_x1\t$match_down_x2\n";
+    print "match y: $y1\t$y1\t$y2\t$y2\n"; 
+    my $xv = [$match_up_x1,$match_up_x2,$match_down_x2,$match_down_x1];
+    my $yv = [$y1, $y1, $y2, $y2];
+    my $points =$svg->get_path(
+                     x=>$xv,y=>$yv,
+                     -type=>'polyline',
+                     -closed=>'true'
+              );
+    my $tag=$svg->polyline(
+                     %$points,
+                     style=>{
+                        fill=>'gray'
+                     }
+              );
+}
+
 }
 
 ################################### sub for plot zoom in mping #######################
