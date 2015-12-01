@@ -22,7 +22,7 @@ my $startw=50;
 my $endw  =1100;
 my $starth=100;
 my $endh  =500;
-my $scale  = 500/5000;
+my $scale  = 500/4500;
 
 print "Plot type1\n";
 plot_deletion_two_mping($svg, $startw, $starth, 'Type 1: Deletions between two nearby mPing insertions', 'RIL_SV_type1.txt', $scale);
@@ -35,6 +35,7 @@ plot_deletion_two_mping($svg, $startw, $starth+350, 'Type 3: Deletions accompani
 #plot_deletion_one_mping()
 #plot_deletion_rearrangement()
 
+plot_scale_bar($svg, $scale);
 
 writesvg("mPing_SV_diagram.svg", $svg);
 
@@ -54,18 +55,31 @@ foreach my $rank (sort {$a <=> $b} keys %$plot_data){
 }
 
 
-#sub plot_deletion_one_mping
-#{
-#my ($svg, $startx, $starty, $title) = @_;
-#
-#my $subtitle =$svg->text(
-#              x=>$startx+15, y=>$starty-20,
-#              style=>{
-#                   fontsize=>'4','text-anchor'=>'start','stroke-width'=>1
-#              }
-#    )->cdata($title);
+sub plot_scale_bar
+{
+my ($svg, $scale) = @_;
 
-#}
+
+#scale bar
+my $x1 = 800;
+my $x2 = $x1 + $scale*1000;
+my $y1 = 600;
+my $y2 = $y1;
+my $line=$svg->line(
+           x1=>$x1, y1=>$y1,
+           x2=>$x2, y2=>$y2,
+           style=>{
+               stroke=>'black'
+           }
+       );
+my $scale =$svg->text(
+           x=>$x1 + 120, y=>$y1,
+           style=>{
+               fontsize=>'4','text-anchor'=>'start','stroke-width'=>1
+           }
+       )->cdata('1 kb');
+
+}
 
 ################################### sub for plot diagram of one SV#####################
 sub plot_diagram_simple
@@ -174,6 +188,26 @@ for (my $i=0; $i<@fragment; $i++){
            }
        )->cdata(substr($label, 1, 1));
      
+    }elsif($arrow eq 'dashed-line'){
+       #dashed line, which are case have not figured out
+       my $line=$svg->line(
+           x1=>$f_start_rl+10, y1=>$y,
+           x2=>$f_end_rl-10, y2=>$y,
+           style=>{stroke=>'black', 'stroke-dasharray'=>"5,5", 'fill'=>"none"}
+       );
+    }elsif($arrow eq 'short-arrow'){
+       my $line=$svg->line(
+           x1=>$f_start_rl+5, y1=>$y,
+           x2=>$f_end_rl-5, y2=>$y,
+           #style=>{stroke=>'black'}
+           style=>{stroke=>'black', 'marker-start'=>'url(#left_arrow)', 'marker-end'=>'url(#right_arrow)'}
+       );
+       my $text=$svg->text(
+           x=>$f_end_rl-10, y=>$y+$label_y_adj,
+           style=>{            
+               'font-size'=>'15','text-anchor'=>'start','stroke-width'=>1
+           }
+       )->cdata($label);
     }
      
 }
@@ -273,7 +307,8 @@ for (my $i=0; $i<@matches; $i++){
     my $tag=$svg->polyline(
                      %$points,
                      style=>{
-                        fill=>$color
+                        fill=>$color,
+                        'fill-opacity' => 0.7
                      }
               );
 }

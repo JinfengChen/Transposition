@@ -11,7 +11,7 @@ down_end=639401
 down_cut=0,0
 down_segment=a:637901:638901:arrow-right;d:639401:640401:arrow-left
 down_zoom_in_mping=mping1,638901,-,TGTCTATTA,TTAGTACTA
-match=a:a:+:gray;d:d:+:gray
+match=a:a:+:lightsteelblue;d:d:+:lightsteelblue
 >2
 up_header=HEG4
 up_start=29493574
@@ -25,7 +25,7 @@ down_end=29496074
 down_cut=0,0
 down_segment=a:29493574:29494574:arrow-right;d:29495074:29496074:arrow-left
 down_zoom_in_mping=mping1,29494574,+,CTGATATAA,TAATGACAG;
-match=a:a:+:gray;d:d:+:gray
+match=a:a:+:lightsteelblue;d:d:+:lightsteelblue
 >3
 up_header=HEG4
 up_start=24624306
@@ -39,4 +39,4 @@ down_end=24626306
 down_cut=0,0
 down_segment=a:24624306:24625306:arrow-right;d:24625306:24626306:arrow-left
 down_zoom_in_mping=
-match=a:a:+:gray;d:d:+:gray
+match=a:a:+:lightsteelblue;d:d:+:lightsteelblue

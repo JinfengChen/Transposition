@@ -15,7 +15,7 @@ down_zoom_in=28724476,CTGATATAA, ATAGTAGTAATTTA, TTAGTACTA
 down_zoom_in_mping=
 #down_zoom_in_mping=28719476,+,CTGATATAA,TAATGACAG;28732623,+,TGTCTATTA,TTAGTACTA
 #match=28723476,28724476,28723476,28724476,+;28732623,28733623,28724477,28725477,+
-match=a:a:+:gray;d:d:+:gray
+match=a:a:+:lightsteelblue;d:d:+:lightsteelblue
 >2
 up_header=HEG4
 up_start=24621994
@@ -29,4 +29,4 @@ down_end=24624494
 down_cut=0,0
 down_segment=a:24621994:24622994:arrow-right;d:24623494:24624494:arrow-left
 down_zoom_in_mping=mping1,24622994,+,CTGATATAA,TAATGACAG;
-match=a:a:+:gray;d:d:+:gray
+match=a:a:+:lightsteelblue;d:d:+:lightsteelblue
