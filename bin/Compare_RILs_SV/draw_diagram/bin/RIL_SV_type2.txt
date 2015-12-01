@@ -2,7 +2,7 @@
 up_header=NB
 up_start=637901
 up_end=695483
-up_cut=639000,54000
+up_cut=639500,54000
 up_segment=a:637901:638901:arrow-right;bc:638901:693983:arrow-both;d:694483:695483:arrow-left
 up_zoom_in_mping=mping1,693983,-,TGTCTATTA,TTAGTACTA
 down_header=RIL198
@@ -30,7 +30,7 @@ match=a:a:+:lightsteelblue;d:d:+:lightsteelblue
 up_header=HEG4
 up_start=24624306
 up_end=24635547
-up_cut=24626006,8000
+up_cut=24626206,8000
 up_segment=a:24624306:24625306:arrow-right;bc:24625806:24634547:arrow-both;d:24634547:24635547:arrow-left
 up_zoom_in_mping=mping1,24625306,+,CTGATATAA,TAATGACAG;
 down_header=RIL22

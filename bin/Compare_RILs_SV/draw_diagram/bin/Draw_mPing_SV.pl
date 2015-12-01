@@ -54,11 +54,10 @@ foreach my $rank (sort {$a <=> $b} keys %$plot_data){
 }
 }
 
-
+##############################sub plot scale bar and mping box
 sub plot_scale_bar
 {
 my ($svg, $scale) = @_;
-
 
 #scale bar
 my $x1 = 800;
@@ -72,12 +71,35 @@ my $line=$svg->line(
                stroke=>'black'
            }
        );
-my $scale =$svg->text(
+my $scale_text =$svg->text(
            x=>$x1 + 120, y=>$y1,
            style=>{
                fontsize=>'4','text-anchor'=>'start','stroke-width'=>1
            }
        )->cdata('1 kb');
+
+#mping on direct diretion
+my $mping_plus_y = 630;
+my $mping_plus_x1 = 800;
+my $mping_plus_x2 = $mping_plus_x1 + $scale*500;
+mping_box($svg, $mping_plus_x1+50, $mping_plus_x2+50, "+", $mping_plus_y);
+my $mping_plus =$svg->text(
+           x=>$x1 + 120, y=>$mping_plus_y,
+           style=>{
+               'font-size'=>'15','text-anchor'=>'start', 'font-style'=>'italic', 'stroke-width'=>1
+           }
+       )->cdata('mPing on plus strand');
+
+#mping in reverse direction
+my $mping_minus_y = 680;
+mping_box($svg, $mping_plus_x1+50, $mping_plus_x2+50, "-", $mping_minus_y);
+my $mping_minus =$svg->text(
+          x=>$x1 + 120, y=>$mping_minus_y,
+          style=>{
+               'font-size'=>'15','text-anchor'=>'start', 'font-style'=>'italic', 'stroke-width'=>1
+          }
+       )->cdata('mPing on minus strand');
+
 
 }
 
@@ -209,9 +231,37 @@ for (my $i=0; $i<@fragment; $i++){
            }
        )->cdata($label);
     }
-     
+    #plot two lines at cut position on chromosome
+    plot_cut_lines($svg, $cut, $scale, $start, $x, $y);
 }
 return \%frag_hash;
+}
+
+sub plot_cut_lines
+{
+my ($svg, $cut, $scale, $start, $x, $y) = @_;
+my ($cut_pos, $cut_length) = split(',', $cut);
+my $cut_pos_rl = convert_position($cut, $start, $cut_pos, $scale, $x);
+
+my $line1=$svg->line(
+       x1=>$cut_pos_rl-2, y1=>$y+4,
+       x2=>$cut_pos_rl+2, y2=>$y-4,
+       style=>{stroke=>'black'}
+    );
+my $line2=$svg->line(
+       x1=>$cut_pos_rl+3-2, y1=>$y+4,
+       x2=>$cut_pos_rl+3+2, y2=>$y-4,
+       style=>{stroke=>'black'}
+    );
+
+my $length = sprintf('%3d kb', $cut_length/1000);
+my $text=$svg->text(
+       x=>$cut_pos_rl-15, y=>$y-20,
+       style=>{
+            'font-size'=>'15','text-anchor'=>'start', 'stroke-width'=>0.1
+       }
+    )->cdata($length);
+
 }
 
 ################################### sub for plot mping ################################
@@ -227,6 +277,8 @@ for (my $i=0; $i<@mpings; $i++){
     my $m_end_rl = convert_position($cut, $start, $m_end, $scale, $x);
     $mping_hash{$mping_id}{'start'} = $m_start_rl;
     $mping_hash{$mping_id}{'end'} = $m_end_rl;
+    mping_box($svg, $m_start_rl, $m_end_rl, $m_strand, $y);
+=cut
     my $mping_box = $svg->rectangle(
        x => $m_start_rl, y => $y-10,
        width => $m_end_rl - $m_start_rl + 1, height => 25,
@@ -266,8 +318,53 @@ for (my $i=0; $i<@mpings; $i++){
         )->cdata('3\'<-5\'');
 
     }
+=cut
 }
 return \%mping_hash;
+}
+
+sub mping_box
+{
+my ($svg, $m_start_rl, $m_end_rl, $m_strand, $y) = @_;
+    my $mping_box = $svg->rectangle(
+       x => $m_start_rl, y => $y-10,
+       width => $m_end_rl - $m_start_rl + 1, height => 25,
+       style=>{
+             fill=>'orange',
+             'fill-opacity' => 0.7
+       }
+    );
+    if ($m_strand eq '+'){
+        print "mping on plus strand\n";
+        my $text_plus=$svg->text(
+           x=>$m_start_rl, y=>$y+12,
+              style=>{            
+                 'font-size'=>'15', 'font-style'=>'italic','text-anchor'=>'start','stroke-width'=>1
+              }
+        )->cdata('mPing');
+        my $text=$svg->text(
+           x=>$m_start_rl, y=>$y,
+              style=>{            
+                 'font-size'=>'15', 'font-style'=>'italic','text-anchor'=>'start','stroke-width'=>1
+              }
+        )->cdata('5\'->3\'');
+    }else{
+        print "mping on minus strand\n"; 
+        my $text_minus=$svg->text(
+           x=>$m_end_rl, y=>$y-2,
+           style=>{            
+                 'font-size'=>'15', 'font-style'=>'italic','text-anchor'=>'start','stroke-width'=>1
+           },
+           transform => "rotate(180 $m_end_rl, $y)"
+        )->cdata('mPing');
+        my $text_53=$svg->text(
+           x=>$m_start_rl, y=>$y,
+              style=>{            
+                 'font-size'=>'15', 'font-style'=>'italic','text-anchor'=>'start','stroke-width'=>1
+              }
+        )->cdata('3\'<-5\'');
+
+    }
 }
 
 ################################### sub for plot_strain name ##########################
